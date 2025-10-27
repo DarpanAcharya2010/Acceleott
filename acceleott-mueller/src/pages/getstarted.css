@@ -1,0 +1,115 @@
+.page {
+  min-height: 100vh;
+  background: linear-gradient(to bottom left, #fefce8, #f0fdfa, #d1fae5);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-family: "Times New Roman", serif;
+  color: black;
+  padding: 40px 20px;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  max-width: 500px;     /* ✅ fixed width card */
+  width: 100%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.left {
+  width: 100%;
+}
+
+.left h2 {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.left p {
+  margin-bottom: 20px;
+}
+
+.arrow {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+.btn {
+  display: inline-block;
+  padding: 10px 25px;
+  border: 1px solid black;
+  border-radius: 25px;
+  text-decoration: none;
+  background: white;
+  color: black;
+  transition: all 0.3s ease;
+}
+.btn:hover {
+  background: black;
+  color: white;
+}
+
+.right {
+  width: 100%;
+  background: white;
+  padding: 30px;
+  border-radius: 1.5rem;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+.right h3 {
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+form input {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.register-btn {
+  padding: 12px;
+  background: orange;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: bold;
+}
+.register-btn:hover {
+  background: darkorange;
+}
+
+.alert {
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: bold;
+}
+.alert.success {
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #10b981;
+}
+.alert.error {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #f87171;
+}

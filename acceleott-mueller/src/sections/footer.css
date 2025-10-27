@@ -1,0 +1,198 @@
+/* =========================
+   FOOTER SECTION (Single Row Layout)
+   ========================= */
+.footer {
+  position: relative;
+  width: 100%;
+  background: #000000f8; /* ✅ Pure black background */
+  color: #ffffff; /* ✅ White text */
+  font-family: "Times New Roman", Times, serif;
+  padding: 32px 5% 16px;
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* Subtle background decoration */
+.footer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 100vw;
+  transform: translateX(-50%);
+  background-image: var(--ribbons-diag-ltr);
+  background-repeat: no-repeat;
+  background-position: center var(--ribbons-y);
+  background-size: var(--ribbons-width) auto;
+  opacity: 0.05;
+  pointer-events: none;
+}
+
+/* =========================
+   FOOTER TOP (Horizontal Columns)
+   ========================= */
+.footer-top {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: flex-start;
+  gap: 40px;
+  text-align: left;
+  flex-wrap: nowrap;
+  margin-bottom: 24px;
+  animation: fadeInUp 1s ease forwards;
+}
+
+.footer .col {
+  flex: 1;
+  min-width: 200px;
+  max-width: 320px;
+}
+
+.footer .col h3,
+.footer .col h4 {
+  margin-bottom: 12px;
+  font-weight: 800;
+  font-size: 1.3rem;
+  color: #ffffff; /* ✅ White headings */
+}
+
+.footer .col p,
+.footer .col a,
+.footer .col span {
+  color: #ffffff; /* ✅ White text */
+  font-size: 1rem;
+  text-decoration: none;
+  line-height: 1.8;
+  opacity: 0.9;
+  transition: color 0.3s ease, opacity 0.3s ease;
+}
+
+.footer .col a:hover {
+  color: #0ea5a5; /* Accent color for hover */
+  opacity: 1;
+}
+
+/* Contact Row */
+.contact-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0;
+  font-size: 1rem;
+  color: #ffffff;
+}
+
+/* Brand Column */
+.footer .brand {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+  color: #ffffff;
+}
+
+/* =========================
+   QUICK LINKS COLUMN
+   ========================= */
+.footer .col a {
+  display: block;
+  margin: 4px 0;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+}
+
+.footer .col a:hover {
+  text-decoration: underline;
+  color: #0ea5a5;
+}
+
+/* =========================
+   FOOTER BOTTOM
+   ========================= */
+.footer-bottom {
+  width: 100%;
+  text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.1); /* ✅ White divider */
+  padding-top: 20px;
+  font-size: 0.95rem;
+  color: #ffffff; /* ✅ White text */
+  opacity: 0.9;
+  animation: fadeInUp 1.3s ease forwards;
+}
+
+.footer-bottom .heart {
+  color: #ff4d6d;
+  font-size: 1.1rem;
+  animation: heartbeat 1.4s infinite;
+}
+
+/* =========================
+   ANIMATIONS
+   ========================= */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes heartbeat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+/* =========================
+   RESPONSIVE DESIGN
+   ========================= */
+@media (max-width: 1200px) {
+  .footer-top {
+    gap: 30px;
+  }
+}
+
+@media (max-width: 960px) {
+  .footer-top {
+    flex-wrap: wrap;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .footer .col {
+    max-width: 100%;
+  }
+
+  .contact-row {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 600px) {
+  .footer {
+    padding: 48px 6% 20px;
+  }
+
+  .footer .brand {
+    font-size: 1.5rem;
+  }
+
+  .footer .col h3,
+  .footer .col h4 {
+    font-size: 1.1rem;
+  }
+
+  .footer .col p,
+  .footer .col a,
+  .footer-bottom {
+    font-size: 0.9rem;
+  }
+}

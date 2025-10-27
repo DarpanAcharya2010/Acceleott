@@ -1,0 +1,321 @@
+/* =========================
+   NAVBAR — FIXED at top
+   ========================= */
+
+.nav-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 100;
+  background: transparent !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-bottom: 1px solid transparent;
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease;
+}
+
+.nav-scrolled {
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+
+/* =========================
+   Layout
+   ========================= */
+
+.nav {
+  max-width: none;
+  margin: 0;
+  height: var(--nav-h);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  padding: 0 16px 0 0;
+  gap: 10px;
+  font-family: Inter, system-ui, Arial, sans-serif;
+}
+
+.brand {
+  justify-self: start;
+  margin-left: 0;
+  padding-left: 0;
+  color: inherit;
+  text-decoration: none;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+/* Initial state (over hero): light text */
+.brand,
+.nav-link,
+.btn-ghost,
+.hamburger span {
+  color: #ffffff;
+}
+
+/* Button styles */
+.btn {
+  padding: 10px 14px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 600;
+}
+.btn-ghost {
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: transparent;
+}
+.btn-ghost:hover {
+  border-color: rgba(255, 255, 255, 0.55);
+}
+.btn-primary {
+  background: #0ea5a5;
+  color: #ffffff;
+  border: 1px solid transparent;
+}
+.btn-primary:hover {
+  filter: brightness(0.95);
+}
+
+/* Center nav links */
+.nav-center {
+  display: flex;
+  gap: 22px;
+  justify-content: center;
+  align-items: center;
+}
+
+.nav-link,
+.nav-item > .nav-link {
+  text-decoration: none;
+  font-weight: 500;
+  opacity: 0.95;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  position: relative; /* Required for ::after underline */
+  transition: color 0.3s ease, opacity 0.3s ease;
+}
+.nav-link:hover {
+  opacity: 1;
+}
+
+/* Right section */
+.nav-right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/* Hamburger menu */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  background: none;
+  border: 0;
+}
+.hamburger span {
+  width: 22px;
+  height: 2px;
+  background: currentColor;
+  display: block;
+}
+
+/* On scroll: dark contrast */
+.nav-scrolled .brand,
+.nav-scrolled .nav-link,
+.nav-scrolled .btn-ghost,
+.nav-scrolled .hamburger span {
+  color: #0f172a;
+}
+.nav-scrolled .btn-ghost {
+  border-color: rgba(15, 23, 42, 0.12);
+}
+.nav-scrolled .btn-ghost:hover {
+  border-color: rgba(15, 23, 42, 0.25);
+}
+
+/* =========================
+   Active Link Underline
+   ========================= */
+
+.nav-link.active,
+.nav-center .nav-link.active,
+.nav-item.dropdown .nav-link.active {
+  color: #0ea5a5 !important;
+  position: relative;
+}
+
+.nav-link.active::after,
+.nav-center .nav-link.active::after,
+.nav-item.dropdown .nav-link.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  height: 2px;
+  background: #0ea5a5;
+  transition: all 0.3s ease;
+}
+
+/* =========================
+   Mobile Drawer
+   ========================= */
+
+@media (max-width: 980px) {
+  .nav {
+    grid-template-columns: auto 1fr auto;
+  }
+
+  .nav-center {
+    position: absolute;
+    top: var(--nav-h);
+    left: 0;
+    right: 0;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    background: transparent;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+  }
+
+  .nav-scrolled .nav-center {
+    background: rgba(255, 255, 255, 0.95);
+    border-bottom-color: rgba(0, 0, 0, 0.08);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .nav-center.show {
+    display: flex;
+  }
+
+  .hamburger {
+    display: flex;
+  }
+}
+
+/* =========================
+   Scroll Progress Bar
+   ========================= */
+.scroll-progress {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  background: transparent;
+  width: 0;
+  transition: width 0.12s linear;
+}
+
+/* =========================
+   Dropdown
+   ========================= */
+
+.nav-item {
+  position: relative;
+}
+.nav-item.dropdown .nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 180px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
+  padding: 6px 0;
+  z-index: 1000;
+  animation: dd-fade 0.22s ease both;
+}
+
+.dropdown-item {
+  display: block;
+  padding: 10px 14px;
+  color: #ffffff;
+  font-size: 14px;
+  text-decoration: none;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+.dropdown-item:hover {
+  background: rgba(14, 165, 165, 0.18);
+  color: #e0fbfb;
+}
+
+.nav-scrolled .dropdown-menu {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.nav-scrolled .dropdown-item {
+  color: #0b1220;
+}
+.nav-scrolled .dropdown-item:hover {
+  background: rgba(14, 165, 165, 0.1);
+  color: #0ea5a5;
+}
+
+@keyframes dd-fade {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================
+   Content Offsets
+   ========================= */
+
+body:not(:has(.hero)) main,
+body:not(:has(.hero)) .page,
+body:not(:has(.hero)) .container {
+  padding-top: var(--nav-h);
+}
+
+/* Transparent “Get Started” CTA in Nav Only */
+.nav .btn-primary {
+  background: transparent !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  box-shadow: none;
+  filter: none;
+}
+.nav .btn-primary:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.55);
+}
+.nav-scrolled .btn-primary {
+  background: transparent !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+}
+.nav-scrolled .btn-primary:hover {
+  background: rgba(15, 23, 42, 0.04);
+  border-color: rgba(15, 23, 42, 0.25);
+}

@@ -1,0 +1,47 @@
+.verify-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #f0f4f8;
+  font-family: 'Inter', Arial, sans-serif;
+}
+
+.verify-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.verify-box {
+  background: #fff;
+  padding: 2rem 3rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 25px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.verify-box h2 {
+  color: #0ea5a5;
+  margin-bottom: 1rem;
+}
+
+.verify-box p {
+  margin-bottom: 1.5rem;
+  color: #0f172a;
+}
+
+.verify-box .btn {
+  background-color: #0ea5a5;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.verify-box .btn:hover {
+  background-color: #089e9e;
+}
