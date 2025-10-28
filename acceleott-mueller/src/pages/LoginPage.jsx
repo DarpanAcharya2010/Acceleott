@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import axios from "axios";
+import api from "@/api/axios"; // ✅ centralized Axios
 import "./loginpage.css";
 import { AuthContext } from "../context/AuthContext";
 
@@ -14,25 +14,23 @@ export default function LoginPage() {
     setMessage("Logging in...");
 
     try {
-      const res = await axios.post(
-        "http://localhost:5000/api/auth/login",
-        { email, password },
-        { withCredentials: true }
-      );
+      // ✅ Send credentials using centralized Axios instance
+      const res = await api.post("/auth/login", { email, password });
 
-      setMessage(res.data.message || "Login successful!");
+      setMessage(res.data.message || "✅ Login successful!");
 
-      // ✅ Save token in localStorage (unified key)
+      // ✅ Store authentication token
       localStorage.setItem("token", res.data.token || "temp_token");
 
       // ✅ Update context immediately
       setIsAuthenticated(true);
 
-      // ✅ Redirect after short delay
+      // ✅ Redirect to homepage after short delay
       setTimeout(() => {
         window.location.href = "/";
       }, 1200);
     } catch (err) {
+      console.error("Login error:", err);
       setMessage(
         err.response?.data?.message ||
           "❌ Login failed. Please check your credentials."
@@ -43,7 +41,7 @@ export default function LoginPage() {
   return (
     <div className="auth-container">
       <div className="auth-wrapper">
-        {/* Left side */}
+        {/* Left section */}
         <div className="auth-left">
           <div className="arrow">⬇️</div>
           <h2>Join Us</h2>
@@ -51,9 +49,10 @@ export default function LoginPage() {
           <a href="#about" className="btn">About Us</a>
         </div>
 
-        {/* Right side (form) */}
+        {/* Right section (form) */}
         <form className="auth-form" onSubmit={handleLogin}>
           <h3 className="welcome-title">Welcome Back</h3>
+
           <input
             type="email"
             placeholder="Email Address"

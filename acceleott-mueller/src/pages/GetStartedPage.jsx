@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import axios from "axios";
+import api from "@/api/axios"; // ✅ uses your centralized config
 import "./getstarted.css"; // keep your existing CSS
 import { AuthContext } from "../context/AuthContext"; // ✅ Added import
 
@@ -29,11 +29,8 @@ const GetStartedPage = () => {
 
     try {
       // ✅ Backend registration endpoint
-      const res = await axios.post(
-        "http://localhost:5000/api/auth/register",
-        formData,
-        { withCredentials: true }
-      );
+      const res = await api.post("/auth/register", formData);
+
 
       setStatus({
         success: true,
