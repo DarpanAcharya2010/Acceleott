@@ -1,151 +1,174 @@
-import React, { useState, useEffect, useRef, useContext } from "react";
-import { Link, useLocation } from "react-router-dom";
+import React, { useState, useEffect, useRef, useContext, useCallback } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./navbar.css";
-import { AuthContext } from "../context/AuthContext"; // ✅ Context for auth
+import { AuthContext } from "../context/AuthContext";
 
 const SECTIONS = ["features", "about", "contact"];
 
 export default function Navbar() {
-  const [open, setOpen] = useState(false);
-  const [active, setActive] = useState("");
-  const [progress, setProgress] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
+  const [active, setActive] = useState("");
+  const [scrollProgress, setScrollProgress] = useState(0);
 
-  const location = useLocation();
   const headerRef = useRef(null);
-  const navCenterId = "nav-center";
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  // ✅ Access authentication state from context
-  const { isAuthenticated, setIsAuthenticated, logout, loading } = useContext(AuthContext);
+  const { isAuthenticated, logout, loading } = useContext(AuthContext);
 
-  // ✅ Don’t render navbar until auth is loaded
+  // ✅ Don’t render navbar until auth state is known
   if (loading) return null;
 
-  // --- Logout handler ---
-  const handleLogout = () => {
+  /* ------------------------------------------
+    Logout Handler
+  ------------------------------------------ */
+  const handleLogout = useCallback(() => {
     logout();
-    window.location.href = "/";
-  };
+    navigate("/", { replace: true });
+  }, [logout, navigate]);
 
-  // --- Scroll progress bar ---
+  /* ------------------------------------------
+    Scroll Progress Bar
+  ------------------------------------------ */
   useEffect(() => {
-    const onScroll = () => {
-      const sy = window.scrollY;
-      const sh = document.documentElement.scrollHeight - window.innerHeight;
-      setProgress(sh > 0 ? (sy / sh) * 100 : 0);
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const scrollY = window.scrollY;
+          const docHeight =
+            document.documentElement.scrollHeight - window.innerHeight;
+          setScrollProgress(docHeight > 0 ? (scrollY / docHeight) * 100 : 0);
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // --- Active link highlight ---
+  /* ------------------------------------------
+    Active Section Tracking
+  ------------------------------------------ */
   useEffect(() => {
-    const io = new IntersectionObserver(
+    const observer = new IntersectionObserver(
       (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) setActive(e.target.id);
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) setActive(entry.target.id);
         });
       },
       { threshold: 0.5 }
     );
     SECTIONS.forEach((id) => {
       const el = document.getElementById(id);
-      if (el) io.observe(el);
+      if (el) observer.observe(el);
     });
-    return () => io.disconnect();
-  }, [location]);
+    return () => observer.disconnect();
+  }, [location.pathname]);
 
-  // --- Maintain nav height variable ---
+  /* ------------------------------------------
+    Nav Height CSS Var
+  ------------------------------------------ */
   useEffect(() => {
-    const setNavHeightVar = () => {
-      const el = headerRef.current;
-      if (!el) return;
-      document.documentElement.style.setProperty("--nav-h", el.offsetHeight + "px");
+    const setNavHeight = () => {
+      const nav = headerRef.current;
+      if (nav)
+        document.documentElement.style.setProperty(
+          "--nav-h",
+          `${nav.offsetHeight}px`
+        );
     };
-    setNavHeightVar();
-    window.addEventListener("resize", setNavHeightVar);
-    return () => window.removeEventListener("resize", setNavHeightVar);
+    setNavHeight();
+    window.addEventListener("resize", setNavHeight);
+    return () => window.removeEventListener("resize", setNavHeight);
   }, []);
 
-  // --- Navbar scroll style change ---
+  /* ------------------------------------------
+    Navbar Transparency
+  ------------------------------------------ */
   useEffect(() => {
     const nav = headerRef.current;
     const hero = document.querySelector(".hero");
 
-    const update = () => {
+    const updateScrollState = () => {
       if (!nav) return;
-      if (!hero) {
-        nav.classList.add("nav-scrolled");
-        return;
-      }
+      if (!hero) return nav.classList.add("nav-scrolled");
+
       const heroBottom = hero.getBoundingClientRect().bottom;
-      const navH = nav.offsetHeight || 64;
-      const transparentOverHero = heroBottom > navH + 1;
-      nav.classList.toggle("nav-scrolled", !transparentOverHero);
+      const navHeight = nav.offsetHeight || 64;
+      const transparent = heroBottom > navHeight + 1;
+      nav.classList.toggle("nav-scrolled", !transparent);
     };
 
-    const ro = hero ? new ResizeObserver(update) : null;
-    update();
-    window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
-    if (ro && hero) ro.observe(hero);
+    const resizeObs = hero ? new ResizeObserver(updateScrollState) : null;
+    updateScrollState();
+
+    window.addEventListener("scroll", updateScrollState, { passive: true });
+    window.addEventListener("resize", updateScrollState);
+    if (hero && resizeObs) resizeObs.observe(hero);
 
     return () => {
-      window.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
-      if (ro) ro.disconnect();
+      window.removeEventListener("scroll", updateScrollState);
+      window.removeEventListener("resize", updateScrollState);
+      if (resizeObs) resizeObs.disconnect();
     };
   }, [location.pathname]);
 
-  // --- Close menus on route change ---
+  /* ------------------------------------------
+    Close Menus on Navigation or Outside Click
+  ------------------------------------------ */
   useEffect(() => {
-    setOpen(false);
+    setMenuOpen(false);
     setServicesOpen(false);
   }, [location]);
 
-  // --- Close dropdowns when clicking outside ---
   useEffect(() => {
-    const onDocClick = (e) => {
+    const handleDocClick = (e) => {
       if (headerRef.current && !headerRef.current.contains(e.target)) {
-        setOpen(false);
+        setMenuOpen(false);
         setServicesOpen(false);
       }
     };
-    const onKeyDown = (e) => {
+    const handleKeyDown = (e) => {
       if (e.key === "Escape") {
-        setOpen(false);
+        setMenuOpen(false);
         setServicesOpen(false);
       }
     };
-    document.addEventListener("click", onDocClick);
-    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("click", handleDocClick);
+    document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.removeEventListener("click", onDocClick);
-      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("click", handleDocClick);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
 
+  /* ------------------------------------------
+    Render
+  ------------------------------------------ */
   return (
     <header ref={headerRef} className="nav-wrapper">
-      <div className="scroll-progress" style={{ width: `${progress}%` }} />
+      <div className="scroll-progress" style={{ width: `${scrollProgress}%` }} />
 
-      <nav className="nav" role="navigation" aria-label="Primary">
+      <nav className="nav" role="navigation" aria-label="Primary Navigation">
         <div className="nav-left">
-          <Link to="/" className="brand">
+          <Link to="/" className="brand" aria-label="ACCELEOTT Home">
             ACCELEOTT
           </Link>
         </div>
 
         <div
-          id={navCenterId}
-          className={`nav-center ${open ? "show" : ""}`}
-          aria-hidden={!open}
+          id="nav-center"
+          className={`nav-center ${menuOpen ? "show" : ""}`}
+          aria-hidden={!menuOpen}
         >
           <div className={`nav-item dropdown ${servicesOpen ? "open" : ""}`}>
             <button
               className={`nav-link ${active === "services" ? "active" : ""}`}
-              onClick={() => setServicesOpen((v) => !v)}
+              onClick={() => setServicesOpen((prev) => !prev)}
               aria-haspopup="true"
               aria-expanded={servicesOpen}
             >
@@ -156,7 +179,6 @@ export default function Navbar() {
                 <Link
                   to="/aimmed"
                   className="dropdown-item"
-                  role="menuitem"
                   onClick={() => setServicesOpen(false)}
                 >
                   AIMMED
@@ -164,7 +186,6 @@ export default function Navbar() {
                 <Link
                   to="/marketboost"
                   className="dropdown-item"
-                  role="menuitem"
                   onClick={() => setServicesOpen(false)}
                 >
                   MarketBoost
@@ -193,29 +214,33 @@ export default function Navbar() {
           </a>
         </div>
 
+        {/* ✅ Auth Buttons */}
         <div className="nav-right">
-          {/* ✅ Hide Login/Get Started when logged in */}
-          {!isAuthenticated ? (
+          {!loading && (
             <>
-              <Link className="btn btn-ghost" to="/login">
-                Login
-              </Link>
-              <Link className="btn btn-primary" to="/get-started">
-                Get Started
-              </Link>
+              {isAuthenticated ? (
+                <button className="btn btn-ghost" onClick={handleLogout}>
+                  Logout
+                </button>
+              ) : (
+                <>
+                  <Link className="btn btn-ghost" to="/login">
+                    Login
+                  </Link>
+                  <Link className="btn btn-primary" to="/get-started">
+                    Get Started
+                  </Link>
+                </>
+              )}
             </>
-          ) : (
-            <button className="btn btn-ghost" onClick={handleLogout}>
-              Logout
-            </button>
           )}
 
           <button
             className="hamburger"
-            onClick={() => setOpen((v) => !v)}
+            onClick={() => setMenuOpen((v) => !v)}
             aria-label="Menu"
-            aria-controls={navCenterId}
-            aria-expanded={open}
+            aria-controls="nav-center"
+            aria-expanded={menuOpen}
           >
             <span />
             <span />

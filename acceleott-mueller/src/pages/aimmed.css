@@ -1,6 +1,8 @@
-/* src/pages/aimmed.css */
+/* ==========================================================
+   AIMMED PAGE STYLES — Production Optimized
+   ========================================================== */
 
-
+/* Root Section */
 .aimmed-section {
   position: relative;
   isolation: isolate;
@@ -9,8 +11,13 @@
   font-family: "Times New Roman", serif;
   line-height: 1.8;
   padding: 6rem 1rem;
+  overflow: hidden;
+  z-index: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* Container Layout */
 .aimmed-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -18,12 +25,63 @@
   flex-wrap: wrap;
   gap: 4rem;
   align-items: center;
+  justify-content: space-between;
+  position: relative;
+  z-index: 2;
 }
 
+/* Left Section */
 .aimmed-left {
   flex: 1 1 500px;
+  min-width: 300px;
 }
 
+.aimmed-title {
+  font-size: clamp(2rem, 2.8vw, 2.8rem);
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #000;
+  letter-spacing: -0.3px;
+}
+
+.aimmed-subtext {
+  font-size: 1.15rem;
+  margin-bottom: 1.5rem;
+  color: #000;
+}
+
+.aimmed-left p {
+  font-size: 1.05rem;
+  margin-bottom: 1rem;
+  color: #111;
+}
+
+/* CTA Button */
+.aimmed-btn {
+  background-color: #004d40;
+  color: #fff;
+  border: none;
+  padding: 0.85rem 2rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  outline-offset: 3px;
+}
+
+.aimmed-btn:hover,
+.aimmed-btn:focus {
+  background-color: #00695c;
+  transform: translateY(-2px) scale(1.03);
+}
+
+.aimmed-btn:active {
+  transform: translateY(0);
+}
+
+/* Right Section (Images) */
 .aimmed-right {
   display: flex;
   flex-direction: column;
@@ -31,24 +89,26 @@
   gap: 2rem;
 }
 
-.aimmed-title {
-  font-size: 2.8rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  color: #000;
+.aimmed-image {
+  width: 100%;
+  max-width: 550px;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  object-fit: cover;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
 }
 
-.aimmed-subtext {
-  font-size: 1.15rem;
-  margin-bottom: 1.5rem;
+.aimmed-image:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
-.aimmed-left p {
-  font-size: 1.05rem;
-  margin-bottom: 1rem;
-  color: #000;
+.secondary-image {
+  opacity: 0.95;
 }
 
+/* Optional Icon Boxes */
 .aimmed-icons {
   display: flex;
   flex-wrap: wrap;
@@ -58,86 +118,31 @@
 
 .icon-box {
   background-color: transparent;
-  border: 2px solid rgba(0, 0, 0, 0.1); /* Optional soft border */
+  border: 2px solid rgba(0, 0, 0, 0.1);
   border-radius: 12px;
-  padding: .5rem .5rem;
+  padding: 0.5rem 0.5rem;
   font-weight: bold;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  box-shadow: none; /* Remove existing shadow if any */
   transition: all 0.3s ease;
 }
-
 
 .icon-box span {
   font-size: 1.3rem;
 }
 
-.aimmed-btn {
-  background-color: #004d40;
-  color: #fff;
-  border: none;
-  padding: 0.75rem 2rem;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-}
-
-.aimmed-btn:hover {
-  background-color: #00695c;
-  transform: scale(1.03);
-}
-
-.aimmed-image {
-  width: 100%;
-  max-width: 550px;
-  height: auto;
-  border-radius: 12px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-}
-
-.secondary-image {
-  max-width: 550px; /* slightly smaller for variation */
-  opacity: 0.95;
-}
-
-/* Responsive behavior */
-@media (max-width: 1024px) {
-  .aimmed-container {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .aimmed-left, .aimmed-right {
-    flex: 1 1 100%;
-  }
-
-  .aimmed-icons {
-    justify-content: center;
-  }
-
-  .aimmed-btn {
-    margin-top: 1rem;
-  }
-}
-
 /* =========================
-   AIMMED Ribbon Styles
-   Same style as About Us ribbons
+   RIBBON BACKGROUND STYLING
    ========================= */
-
 .aimmed-ribbons {
   position: absolute;
-  top: var(--ribbons-top, 100vh); /* fallback to 100vh */
-  left: 0;
+  inset: 0;
   width: 100%;
   height: 100%;
   overflow: hidden;
   z-index: 0;
+  pointer-events: none;
 }
 
 .aimmed-ribbons .ribbon {
@@ -146,6 +151,7 @@
   height: 600px;
   opacity: 0.08;
   transform: rotate(12deg);
+  will-change: transform;
 }
 
 .aimmed-ribbons .ribbon-1 {
@@ -166,40 +172,38 @@
   left: -30%;
 }
 
-/* Ensure content is above ribbons */
-.aimmed-section {
-  position: relative;
-  z-index: 1;
-}
-.aimmed-container {
-  position: relative;
-  z-index: 2;
-}
-
+/* =========================
+   MODAL STYLES (If Used)
+   ========================= */
 .modal-backdrop {
   position: fixed;
-  top: 0; left: 0;
-  width: 100vw; height: 100vh;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
   background: rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  backdrop-filter: blur(2px);
+  animation: fadeIn 0.3s ease forwards;
 }
 
 .modal-box {
-  background: white;
+  background: #fff;
   padding: 2rem;
   border-radius: 12px;
   max-width: 420px;
   width: 90%;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
   font-family: "Times New Roman", serif;
+  animation: scaleIn 0.25s ease forwards;
 }
 
 .modal-box h2 {
   text-align: center;
   margin-bottom: 1rem;
+  font-size: 1.5rem;
 }
 
 .modal-box form {
@@ -213,6 +217,12 @@
   border: 1px solid #ccc;
   border-radius: 8px;
   font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.modal-box input:focus {
+  border-color: #004d40;
+  outline: none;
 }
 
 .modal-box button {
@@ -221,37 +231,26 @@
   border-radius: 6px;
   font-weight: bold;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .modal-box button[type="submit"] {
   background-color: #004d40;
-  color: white;
+  color: #fff;
+}
+
+.modal-box button[type="submit"]:hover {
+  background-color: #00695c;
 }
 
 .modal-box button[type="button"] {
   background-color: #ddd;
   color: #000;
 }
-#catcher {
-  z-index: 3;
-  position: absolute; /* changed from fixed */
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 200px;
-  height: 20px;
-  background-color: #ff00d9;
-  border-radius: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 0.9rem;
-  font-weight: bold;
-  font-family: Arial, sans-serif;
-  cursor: pointer;
-}
 
+/* =========================
+   FORM STYLING
+   ========================= */
 .aimmed-form {
   display: flex;
   flex-direction: column;
@@ -266,9 +265,85 @@
   border: 1px solid #ccc;
   font-family: "Times New Roman", serif;
   width: 100%;
+  transition: border-color 0.3s ease;
 }
 
 .aimmed-form input:focus {
   border-color: #004d40;
   outline: none;
+}
+
+/* =========================
+   CATCHER ELEMENT (IF USED)
+   ========================= */
+#catcher {
+  z-index: 3;
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 20px;
+  background-color: #ff00d9;
+  border-radius: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: bold;
+  font-family: Arial, sans-serif;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+#catcher:hover {
+  transform: translateX(-50%) scale(1.05);
+}
+
+/* =========================
+   RESPONSIVE DESIGN
+   ========================= */
+@media (max-width: 1024px) {
+  .aimmed-container {
+    flex-direction: column;
+    text-align: center;
+    gap: 3rem;
+  }
+
+  .aimmed-left,
+  .aimmed-right {
+    flex: 1 1 100%;
+  }
+
+  .aimmed-btn {
+    margin-top: 1rem;
+  }
+
+  .aimmed-image {
+    max-width: 90%;
+  }
+}
+
+/* =========================
+   ANIMATIONS
+   ========================= */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }

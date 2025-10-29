@@ -1,32 +1,78 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect, useCallback } from "react";
 
 export const AuthContext = createContext();
 
+/**
+ * Enhanced Production-ready AuthProvider
+ * - Instantly reflects login/logout across components.
+ * - Syncs across tabs and page reloads.
+ * - Periodically validates tokens (for backend sessions).
+ * - Prevents UI flicker during initialization.
+ */
 export const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    // ✅ Initialize from localStorage synchronously (prevents flicker)
+    const token = localStorage.getItem("token");
+    return !!(token && token.trim() !== "");
+  });
   const [loading, setLoading] = useState(true);
 
-  // ✅ Load and sync login state from localStorage
+  /** ✅ Always keep state in sync with localStorage */
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    setIsAuthenticated(!!token);
+    const checkToken = () => {
+      const token = localStorage.getItem("token");
+      setIsAuthenticated(!!(token && token.trim() !== ""));
+    };
+
+    // Initial check
+    checkToken();
     setLoading(false);
 
-    // ✅ Sync auth state across browser tabs
-    const syncAuth = (e) => {
+    // ✅ Listen for changes from other tabs/windows
+    const handleStorageChange = (e) => {
       if (e.key === "token") {
-        setIsAuthenticated(!!e.newValue);
+        checkToken();
       }
     };
-    window.addEventListener("storage", syncAuth);
-    return () => window.removeEventListener("storage", syncAuth);
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
-  // ✅ Logout helper
-  const logout = () => {
+  /** ✅ Central logout handler (used globally) */
+  const logout = useCallback(() => {
     localStorage.removeItem("token");
     setIsAuthenticated(false);
-  };
+    // Optional redirect
+    window.location.href = "/login";
+  }, []);
+
+  /** ✅ Token validation (runs every 10 minutes for security) */
+  useEffect(() => {
+    const validateToken = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api"}/auth/validate`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        if (!res.ok) {
+          console.warn("Invalid token detected. Logging out...");
+          logout();
+        }
+      } catch (err) {
+        console.warn("Token validation error:", err);
+        logout();
+      }
+    };
+
+    const interval = setInterval(validateToken, 10 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [logout]);
 
   return (
     <AuthContext.Provider
@@ -37,6 +83,7 @@ export const AuthProvider = ({ children }) => {
         loading,
       }}
     >
+      {/* ✅ Render only after initialization */}
       {!loading && children}
     </AuthContext.Provider>
   );

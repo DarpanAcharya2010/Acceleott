@@ -1,19 +1,20 @@
-/* =========================
-   BLOG SECTION (final + ribbon aligned)
-   ========================= */
+/* ===================================================
+   BLOG SECTION — Production Ready (Ribbon Compatible)
+   =================================================== */
 
 .blog-section {
-  position: relative;            /* ✅ ensure ribbons attach */
-  isolation: isolate;            /* ✅ keep ribbons behind content */
+  position: relative;
+  isolation: isolate; /* ensures layered ribbons stay behind */
   padding: 88px 0;
-  background: transparent;       /* ✅ inherit site-wide gradient/ribbons */
+  background: transparent;
   font-family: "Times New Roman", Times, serif;
   overflow: visible;
   z-index: 1;
 }
 
+/* ---------- Ribbon Layer Integration ---------- */
 .blog-section::after {
-  /* ✅ global ribbons integration */
+  content: "";
   position: absolute;
   top: 0;
   bottom: 0;
@@ -23,29 +24,33 @@
   pointer-events: none;
   z-index: 0;
 
-  content: "";
   background-image: var(--ribbons-diag-ltr);
   background-repeat: no-repeat;
   background-position: center var(--ribbons-y);
   background-size: var(--ribbons-width) auto;
 
-  -webkit-mask-image: linear-gradient(90deg,
+  -webkit-mask-image: linear-gradient(
+    90deg,
     white 0,
     white calc(max(0px, (100vw - var(--safe-column)) / 2)),
     transparent calc(max(0px, (100vw - var(--safe-column)) / 2)),
     transparent calc(min(100vw, (100vw + var(--safe-column)) / 2)),
     white calc(min(100vw, (100vw + var(--safe-column)) / 2)),
-    white 100%);
-  mask-image: linear-gradient(90deg,
+    white 100%
+  );
+  mask-image: linear-gradient(
+    90deg,
     white 0,
     white calc(max(0px, (100vw - var(--safe-column)) / 2)),
     transparent calc(max(0px, (100vw - var(--safe-column)) / 2)),
     transparent calc(min(100vw, (100vw + var(--safe-column)) / 2)),
     white calc(min(100vw, (100vw + var(--safe-column)) / 2)),
-    white 100%);
+    white 100%
+  );
   mask-mode: luminance;
 }
 
+/* ---------- Heading ---------- */
 .blog-section .heading {
   text-align: center;
   font-size: clamp(32px, 5vw, 48px);
@@ -56,15 +61,16 @@
   z-index: 1;
 }
 
+/* ---------- Container ---------- */
 .blog-section .container {
-  max-width: var(--safe-column);  /* ✅ match ribbon-free area */
+  max-width: var(--safe-column);
   margin: 0 auto;
   padding: 0 16px;
   position: relative;
-  z-index: 1;                     /* ✅ keep content above ribbons */
+  z-index: 1;
 }
 
-/* Grid layout */
+/* ---------- Blog Grid ---------- */
 .pill-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -83,7 +89,7 @@
   }
 }
 
-/* Blog Card */
+/* ---------- Blog Card ---------- */
 .pill.blog-card {
   background: rgba(255, 255, 255, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -91,31 +97,33 @@
   -webkit-backdrop-filter: blur(12px);
   border-radius: 1rem;
   padding: 2rem;
-  transition:
-    transform 0.35s cubic-bezier(.25,.8,.25,1),
-    box-shadow 0.35s ease,
-    border-color 0.35s ease,
-    background 0.35s ease,
-    color 0.35s ease;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
   font-family: "Times New Roman", Times, serif;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  text-align: left;               /* ✅ ensures titles/summaries align neatly */
+  text-align: left;
+  transition:
+    transform 0.35s cubic-bezier(.25, .8, .25, 1),
+    box-shadow 0.35s ease,
+    border-color 0.35s ease,
+    background 0.35s ease,
+    color 0.35s ease;
 }
 
+/* ---------- Hover Effects ---------- */
 .pill.blog-card:hover {
   transform: translateY(-10px) scale(1.03) rotateX(1.5deg) rotateY(-1.5deg);
-  background: rgba(255,255,255,0.12);
+  background: rgba(255, 255, 255, 0.12);
   border-color: rgba(255, 255, 255, 0.55);
   box-shadow:
     0 18px 36px rgba(0, 0, 0, 0.35),
-    0 0 22px rgba(14, 165, 165, 0.40);
+    0 0 22px rgba(14, 165, 165, 0.4);
 }
 
+/* ---------- Blog Title ---------- */
 .pill.blog-card h3 {
-  color: #000000;
+  color: #000;
   font-size: clamp(18px, 2.6vw, 22px);
   font-weight: 700;
   margin: 0 0 6px;
@@ -126,14 +134,15 @@
   color: #e3e793;
 }
 
+/* ---------- Summary ---------- */
 .pill.blog-card p {
-  color: #000000;
+  color: #000;
   font-size: 1.05rem;
   line-height: 1.8;
   margin-bottom: 1.5rem;
 }
 
-/* Read More Button */
+/* ---------- Read More Button ---------- */
 .read-more-btn {
   align-self: flex-start;
   background-color: #000;
@@ -150,13 +159,28 @@
 
 .read-more-btn:hover {
   background-color: #e5e8ac;
+  color: #000;
   transform: scale(1.05);
   box-shadow: 0 6px 20px rgba(66, 209, 201, 0.4);
 }
 
-/* Mobile adjustments */
+/* ---------- Mobile Adjustments ---------- */
 @media (max-width: 760px) {
   .pill-grid {
     grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .pill.blog-card {
+    padding: 1.5rem;
+  }
+
+  .pill.blog-card h3 {
+    font-size: 1.15rem;
+  }
+
+  .pill.blog-card p {
+    font-size: 1rem;
+    line-height: 1.6;
   }
 }

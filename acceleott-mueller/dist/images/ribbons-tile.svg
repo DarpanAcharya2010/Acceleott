@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 720">
+  <defs>
+    <!-- two wave paths that extend past the edges so the tile repeats vertically without seams -->
+    <path id="blue" d="M-180 120 C 120 260 460 110 800 260 S 1520 540 1760 680"></path>
+    <path id="brown" d="M-200 430 C 100 540 460 470 860 590 S 1700 720 1920 820"></path>
+  </defs>
+  <g fill="none" stroke-linecap="round">
+    <use href="#blue" stroke="#5FA8D3" stroke-width="118" opacity=".98"></use>
+    <use href="#brown" stroke="#B98A74" stroke-width="128" opacity=".98"></use>
+  </g>
+</svg>

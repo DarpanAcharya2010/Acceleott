@@ -11,28 +11,31 @@ dotenv.config();
 const router = express.Router();
 router.use(cookieParser());
 
-// ===========================
-// Nodemailer Transporter Setup
-// ===========================
+/* ================================
+   ✉️ Nodemailer Transporter Setup
+   ================================ */
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com", // ✅ Explicit for production stability
+  port: 465,
+  secure: true,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
 });
 
-// ===========================
-// Helper Function: Email Template
-// ===========================
+/* ================================
+   📩 Email Template Generator
+   ================================ */
 function buildVerificationEmail(name, verifyUrl) {
   return `
   <div style="font-family:Inter,Arial,sans-serif;color:#0f172a">
     <h2>Welcome to Acceleott, ${name}!</h2>
-    <p>Thanks for registering. Please confirm your email by clicking the button below.</p>
+    <p>Thanks for registering. Please confirm your email by clicking the button below:</p>
     <p style="margin:24px 0">
-      <a href="${verifyUrl}" style="background:#0ea5a5;color:#fff;padding:12px 18px;border-radius:8px;text-decoration:none;font-weight:600">
-        Verify My Email
+      <a href="${verifyUrl}" 
+         style="background:#0ea5a5;color:#fff;padding:12px 18px;border-radius:8px;text-decoration:none;font-weight:600">
+         Verify My Email
       </a>
     </p>
     <p>If the button doesn’t work, copy this link:</p>
@@ -42,37 +45,35 @@ function buildVerificationEmail(name, verifyUrl) {
   </div>`;
 }
 
-// ===========================
-// Register User
-// ===========================
+/* ================================
+   🧾 Register User
+   ================================ */
 router.post("/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
+
     if (!name || !email || !password)
-      return res.status(400).json({ message: "All fields are required" });
+      return res.status(400).json({ message: "All fields are required." });
 
     const existingUser = await User.findOne({ email });
     if (existingUser)
-      return res.status(400).json({ message: "User already exists" });
+      return res.status(400).json({ message: "User already exists." });
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 12);
 
-    const user = new User({
-      name,
-      email,
-      password: hashedPassword,
-    });
+    // Create user
+    const user = new User({ name, email, password: hashedPassword });
 
     // Generate verification token
     const token = crypto.randomBytes(32).toString("hex");
     user.verifyToken = crypto.createHash("sha256").update(token).digest("hex");
-    user.verifyTokenExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+    user.verifyTokenExpires = Date.now() + 24 * 60 * 60 * 1000; // 24h
     await user.save();
 
-    // Build verification link (API_BASE_URL from .env)
+    // Build verification link
     const verifyUrl = `${process.env.API_BASE_URL}/api/auth/verify/${token}`;
 
-    // Send verification email to user
+    // Send verification email
     await transporter.sendMail({
       from: `"Acceleott" <${process.env.EMAIL_USER}>`,
       to: email,
@@ -80,7 +81,7 @@ router.post("/register", async (req, res) => {
       html: buildVerificationEmail(name, verifyUrl),
     });
 
-    // Send notification to admin
+    // Notify admin (optional)
     if (process.env.ADMIN_EMAIL) {
       await transporter.sendMail({
         from: `"Acceleott" <${process.env.EMAIL_USER}>`,
@@ -98,17 +99,18 @@ router.post("/register", async (req, res) => {
     }
 
     res.status(201).json({
-      message: "User registered. Please check your email to verify your account.",
+      success: true,
+      message: "User registered successfully. Please check your email to verify your account.",
     });
   } catch (err) {
-    console.error("Registration Error:", err);
+    console.error("❌ Registration Error:", err);
     res.status(500).json({ message: "Server error during registration." });
   }
 });
 
-// ===========================
-// Verify Email
-// ===========================
+/* ================================
+   ✅ Verify Email
+   ================================ */
 router.get("/verify/:token", async (req, res) => {
   try {
     const { token } = req.params;
@@ -119,9 +121,7 @@ router.get("/verify/:token", async (req, res) => {
       verifyTokenExpires: { $gt: Date.now() },
     });
 
-    if (!user) {
-      return res.redirect(`${process.env.APP_BASE_URL}/verify-failed`);
-    }
+    if (!user) return res.redirect(`${process.env.APP_BASE_URL}/verify-failed`);
 
     user.emailVerified = true;
     user.verifyToken = undefined;
@@ -130,30 +130,28 @@ router.get("/verify/:token", async (req, res) => {
 
     res.redirect(`${process.env.APP_BASE_URL}/verify-success`);
   } catch (err) {
-    console.error("Verification Error:", err);
+    console.error("❌ Verification Error:", err);
     res.redirect(`${process.env.APP_BASE_URL}/verify-failed`);
   }
 });
 
-// ===========================
-// Login User
-// ===========================
+/* ================================
+   🔐 Login User
+   ================================ */
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select("+password");
     if (!user)
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({ message: "Invalid credentials." });
 
     if (!user.emailVerified)
-      return res
-        .status(403)
-        .json({ message: "Please verify your email to continue." });
+      return res.status(403).json({ message: "Please verify your email first." });
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch)
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({ message: "Invalid credentials." });
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "1d",
@@ -163,41 +161,49 @@ router.post("/login", async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 24 * 60 * 60 * 1000,
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
     });
 
     res.json({
-      message: "Login successful",
+      success: true,
+      message: "Login successful.",
       user: { id: user._id, name: user.name, email: user.email },
     });
   } catch (err) {
-    console.error("Login Error:", err);
+    console.error("❌ Login Error:", err);
     res.status(500).json({ message: "Server error during login." });
   }
 });
 
-// ===========================
-// Logout
-// ===========================
+/* ================================
+   🚪 Logout
+   ================================ */
 router.post("/logout", (req, res) => {
-  res.clearCookie("token");
-  res.json({ message: "Logged out successfully" });
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+  });
+  res.json({ success: true, message: "Logged out successfully." });
 });
 
-// ===========================
-// Get Logged-in User
-// ===========================
+/* ================================
+   👤 Get Logged-in User
+   ================================ */
 router.get("/me", async (req, res) => {
   try {
     const token = req.cookies.token;
-    if (!token) return res.status(401).json({ message: "Not authorized" });
+    if (!token) return res.status(401).json({ message: "Not authorized." });
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.id).select("-password");
-    res.json(user);
+    if (!user)
+      return res.status(404).json({ message: "User not found." });
+
+    res.json({ success: true, user });
   } catch (err) {
-    console.error("GetMe Error:", err);
-    res.status(401).json({ message: "Invalid token" });
+    console.error("❌ GetMe Error:", err);
+    res.status(401).json({ message: "Invalid or expired token." });
   }
 });
 

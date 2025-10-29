@@ -7,39 +7,87 @@ export default function DemoRequestPage() {
     name: "",
     email: "",
     contact: "",
-    Designation: "",
+    designation: "",
   });
 
   const [status, setStatus] = useState({ success: null, message: "" });
+  const [loading, setLoading] = useState(false);
 
-  // Handle input changes
+  // ✅ Backend URL - automatically adjusts for production
+  const API_URL =
+    import.meta.env.VITE_API_URL || "https://api.acceleott.com/api/demo";
+
+  // ✅ Handle input changes (controlled form)
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle form submission
+  // ✅ Validate before submit
+  const validateForm = () => {
+    const { name, email, contact } = formData;
+    if (!name.trim() || !email.trim() || !contact.trim()) {
+      setStatus({
+        success: false,
+        message: "⚠️ Please fill in all required fields.",
+      });
+      return false;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^[0-9+\-()\s]{7,15}$/;
+
+    if (!emailRegex.test(email)) {
+      setStatus({
+        success: false,
+        message: "⚠️ Please enter a valid email address.",
+      });
+      return false;
+    }
+
+    if (!phoneRegex.test(contact)) {
+      setStatus({
+        success: false,
+        message: "⚠️ Please enter a valid contact number.",
+      });
+      return false;
+    }
+
+    return true;
+  };
+
+  // ✅ Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setStatus({ success: null, message: "Submitting..." });
+    if (!validateForm()) return;
+
+    setLoading(true);
+    setStatus({ success: null, message: "Submitting your request..." });
 
     try {
-      const res = await axios.post("http://localhost:5000/api/demo", formData);
+      const res = await axios.post(API_URL, formData, {
+        headers: { "Content-Type": "application/json" },
+        timeout: 10000, // 10s timeout
+      });
 
       setStatus({
         success: true,
-        message: res?.data?.message || "✅ Demo request submitted!",
+        message: res?.data?.message || "✅ Demo request submitted successfully!",
       });
 
-      // Reset form
+      // Reset form after success
       setFormData({ name: "", email: "", contact: "", Designation: "" });
     } catch (err) {
+      console.error("Demo request failed:", err);
       setStatus({
         success: false,
         message:
           err?.response?.data?.message ||
-          "❌ Submission failed. Please try again later.",
+          (err.code === "ECONNABORTED"
+            ? "⏱️ Request timed out. Please try again."
+            : "❌ Submission failed. Please try again later."),
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -61,7 +109,7 @@ export default function DemoRequestPage() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="demo-form">
+      <form onSubmit={handleSubmit} className="demo-form" noValidate>
         <input
           type="text"
           name="name"
@@ -70,6 +118,7 @@ export default function DemoRequestPage() {
           onChange={handleChange}
           required
         />
+
         <input
           type="email"
           name="email"
@@ -78,6 +127,7 @@ export default function DemoRequestPage() {
           onChange={handleChange}
           required
         />
+
         <input
           type="tel"
           name="contact"
@@ -86,14 +136,18 @@ export default function DemoRequestPage() {
           onChange={handleChange}
           required
         />
+
         <input
           type="text"
-          name="Designation"
+          name="designation"
           placeholder="Company / Designation (Optional)"
-          value={formData.Designation}
+          value={formData.designation}
           onChange={handleChange}
         />
-        <button type="submit">Submit Demo Request</button>
+
+        <button type="submit" disabled={loading}>
+          {loading ? "Submitting..." : "Submit Demo Request"}
+        </button>
       </form>
     </div>
   );

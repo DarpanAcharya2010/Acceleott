@@ -1,0 +1,26 @@
+{
+  "_react-KEM1KK5Q.js": {
+    "file": "assets/react-KEM1KK5Q.js",
+    "name": "react"
+  },
+  "_vendor-CSYuk0ps.js": {
+    "file": "assets/vendor-CSYuk0ps.js",
+    "name": "vendor",
+    "imports": [
+      "_react-KEM1KK5Q.js"
+    ]
+  },
+  "index.html": {
+    "file": "assets/index-Cu52qIsG.js",
+    "name": "index",
+    "src": "index.html",
+    "isEntry": true,
+    "imports": [
+      "_vendor-CSYuk0ps.js",
+      "_react-KEM1KK5Q.js"
+    ],
+    "css": [
+      "assets/index-DIm143F6.css"
+    ]
+  }
+}

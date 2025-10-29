@@ -1,15 +1,63 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- ✅ Basic Meta -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Acceleott partners with businesses to streamline operations, centralize information, and improve collaboration through automation and innovation."
+    />
+    <meta name="author" content="Acceleott Automations" />
+    <meta name="theme-color" content="#0ea5a5" />
+
+    <!-- ✅ SEO & Social Meta -->
     <title>ACCELEOTT — From Manual to Magical</title>
-    <meta name="description" content="Acceleott partners with businesses to streamline operations, centralise information, and improve collaboration." />
+    <meta property="og:title" content="ACCELEOTT — From Manual to Magical" />
+    <meta
+      property="og:description"
+      content="Transforming businesses from manual to magical through automation, healthcare, and marketing innovation."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://acceleott.com" />
+    <meta property="og:image" content="/images/preview.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="ACCELEOTT — From Manual to Magical" />
+    <meta
+      name="twitter:description"
+      content="Streamlining operations and centralizing information for modern businesses."
+    />
+    <meta name="twitter:image" content="/images/preview.jpg" />
+
+    <!-- ✅ Preconnect & Font Optimization -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- ✅ Favicon & Manifest -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- ✅ Preload Hero Image (for faster LCP) -->
+    <link rel="preload" as="image" href="/images/hero-car.jpg" />
+
+    <!-- ✅ Security & PWA Meta -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:;" />
+
   </head>
   <body>
+    <noscript>
+      You need to enable JavaScript to run this app.
+    </noscript>
+
     <div id="root"></div>
+
+    <!-- ✅ App Entry -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

@@ -1,16 +1,17 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import './blog.css';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import "./blog.css";
 
 const Blog = () => {
   const navigate = useNavigate();
 
+  // ✅ Blog Data (kept same structure to avoid integration issues)
   const blogPosts = [
     {
       id: 1,
       title: "Digital CRM for Modern Clinics",
       summary:
-        "In today’s fast-paced healthcare environment, managing patient relationships efficiently is no longer a luxury—it’s a necessity. Modern clinics are increasingly adopting Digital CRM (Customer Relationship Management) systems to streamline operations, enhance patient care, and drive overall clinic performance. But what exactly makes a digital CRM indispensable for today’s clinics?",
+        "In today’s fast-paced healthcare environment, managing patient relationships efficiently is no longer a luxury—it’s a necessity. Modern clinics are increasingly adopting Digital CRM systems to streamline operations, enhance patient care, and drive overall clinic performance. But what exactly makes a digital CRM indispensable for today’s clinics?",
     },
     {
       id: 2,
@@ -20,7 +21,7 @@ const Blog = () => {
     },
     {
       id: 3,
-      title: "Why Automation Matters in Clinics",
+      title: "Enhancing Patient Care with Automation",
       summary:
         "Discover how automation reduces manual work, streamlines operations, and lets doctors focus on what matters most – patient care.",
     },
@@ -29,22 +30,25 @@ const Blog = () => {
   return (
     <section className="blog-section" id="blogs">
       <div className="container">
-        {/* Section Heading */}
+        {/* ===== Section Heading ===== */}
         <h2 className="heading" data-aos="fade-up">
           From Our Blog
         </h2>
 
-        {/* Blog Cards */}
+        {/* ===== Blog Cards Grid ===== */}
         <div className="pill-grid">
           {blogPosts.map((post, index) => (
             <article
-              className="pill blog-card"
               key={post.id}
+              className="pill blog-card"
               data-aos="fade-up"
               data-aos-delay={index * 100}
             >
-              <h3>{post.title}</h3>
+              <header>
+                <h3>{post.title}</h3>
+              </header>
               <p>{post.summary}</p>
+
               <button
                 className="read-more-btn"
                 onClick={() => navigate(`/blog/${post.id}`)}

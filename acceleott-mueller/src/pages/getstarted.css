@@ -1,75 +1,108 @@
+/* ============================
+   GLOBAL PAGE STYLING
+   ============================ */
 .page {
   min-height: 100vh;
-  background: linear-gradient(to bottom left, #fefce8, #f0fdfa, #d1fae5);
+  background: linear-gradient(135deg, #fefce8, #f0fdfa, #d1fae5);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  font-family: "Times New Roman", serif;
-  color: black;
+  font-family: "Inter", "Times New Roman", serif;
+  color: #111;
   padding: 40px 20px;
+  transition: background 0.4s ease-in-out;
 }
 
+/* ============================
+   CONTAINER
+   ============================ */
 .container {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 30px;
-  max-width: 500px;     /* ✅ fixed width card */
+  max-width: 520px;
   width: 100%;
   margin: 0 auto;
   text-align: center;
+  animation: fadeUp 0.6s ease-in-out;
 }
 
+/* ============================
+   LEFT SECTION
+   ============================ */
 .left {
   width: 100%;
 }
 
 .left h2 {
-  font-size: 28px;
-  font-weight: bold;
+  font-size: 1.9rem;
+  font-weight: 700;
   margin: 10px 0;
+  color: #000;
 }
 
 .left p {
   margin-bottom: 20px;
+  color: #333;
+  font-size: 1rem;
+  line-height: 1.6;
 }
 
 .arrow {
-  font-size: 40px;
+  font-size: 2.2rem;
   margin-bottom: 10px;
+  user-select: none;
 }
 
+/* ============================
+   BUTTON (LEFT SIDE)
+   ============================ */
 .btn {
   display: inline-block;
   padding: 10px 25px;
-  border: 1px solid black;
+  border: 1px solid #000;
   border-radius: 25px;
   text-decoration: none;
-  background: white;
-  color: black;
+  background: #fff;
+  color: #000;
+  font-weight: 500;
   transition: all 0.3s ease;
 }
-.btn:hover {
-  background: black;
-  color: white;
+.btn:hover,
+.btn:focus {
+  background: #000;
+  color: #fff;
+  transform: translateY(-2px);
 }
 
+/* ============================
+   RIGHT SECTION (FORM CARD)
+   ============================ */
 .right {
   width: 100%;
-  background: white;
-  padding: 30px;
+  background: #fff;
+  padding: 30px 28px;
   border-radius: 1.5rem;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+  transition: box-shadow 0.3s ease;
+}
+.right:hover {
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
 }
 
 .right h3 {
   text-align: center;
-  font-size: 24px;
-  font-weight: bold;
+  font-size: 1.6rem;
+  font-weight: 700;
   margin-bottom: 20px;
+  color: #111;
 }
 
+/* ============================
+   FORM ELEMENTS
+   ============================ */
 form {
   display: flex;
   flex-direction: column;
@@ -77,31 +110,55 @@ form {
 }
 
 form input {
-  padding: 10px;
-  font-size: 16px;
+  padding: 12px 14px;
+  font-size: 1rem;
   border: 1px solid #ccc;
-  border-radius: 6px;
+  border-radius: 8px;
+  background: #fafafa;
+  color: #111;
+  transition: all 0.25s ease;
+}
+form input:focus {
+  border-color: #10b981;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+  outline: none;
 }
 
+/* ============================
+   SUBMIT BUTTON
+   ============================ */
 .register-btn {
   padding: 12px;
-  background: orange;
-  color: white;
+  background: linear-gradient(90deg, #f59e0b, #ea580c);
+  color: #fff;
   border: none;
-  border-radius: 20px;
+  border-radius: 25px;
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
 }
-.register-btn:hover {
-  background: darkorange;
+.register-btn:hover,
+.register-btn:focus {
+  background: linear-gradient(90deg, #ea580c, #c2410c);
+  transform: translateY(-2px);
+}
+.register-btn:disabled {
+  background: #fbbf24;
+  cursor: not-allowed;
 }
 
+/* ============================
+   ALERT MESSAGES
+   ============================ */
 .alert {
   padding: 12px;
   margin-bottom: 15px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: bold;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  animation: fadeIn 0.3s ease;
 }
 .alert.success {
   background: #d1fae5;
@@ -112,4 +169,62 @@ form input {
   background: #fee2e2;
   color: #991b1b;
   border: 1px solid #f87171;
+}
+.alert.info {
+  background: #e0f2fe;
+  color: #075985;
+  border: 1px solid #38bdf8;
+}
+
+/* ============================
+   RESPONSIVE DESIGN
+   ============================ */
+@media (max-width: 600px) {
+  .page {
+    padding: 30px 15px;
+  }
+
+  .container {
+    max-width: 100%;
+    gap: 20px;
+  }
+
+  .right {
+    padding: 25px 20px;
+  }
+
+  .left h2 {
+    font-size: 1.6rem;
+  }
+
+  .right h3 {
+    font-size: 1.4rem;
+  }
+
+  form input {
+    font-size: 0.95rem;
+  }
+}
+
+/* ============================
+   ANIMATIONS
+   ============================ */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

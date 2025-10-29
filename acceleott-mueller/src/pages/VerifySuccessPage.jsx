@@ -1,23 +1,21 @@
 import React from "react";
-import { Link } from "react-router-dom"; // if using react-router
+import { Link } from "react-router-dom";
 import "./verifySuccess.css";
 
-const VerifySuccessPage = () => {
+export default function VerifySuccessPage() {
   return (
-    <div className="verify-page">
+    <section className="verify-page">
       <div className="verify-container">
-        <div className="verify-box">
-          <h2>✅ Email Verified Successfully!</h2>
-          <p>
-            Thank you for verifying your email. You can now log in and access your account.
+        <div className="verify-box fade-in">
+          <h2 className="verify-title">✅ Email Verified Successfully!</h2>
+          <p className="verify-message">
+            Thank you for verifying your email. You can now log in and access your account securely.
           </p>
-          <Link to="/login" className="btn">
+          <Link to="/login" className="btn verify-btn">
             Go to Login
           </Link>
         </div>
       </div>
-    </div>
+    </section>
   );
-};
-
-export default VerifySuccessPage;
+}

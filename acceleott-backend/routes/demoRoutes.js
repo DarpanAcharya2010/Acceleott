@@ -1,67 +1,95 @@
+/**
+ * ==========================================
+ * Demo Request Routes (POST /api/demo)
+ * ==========================================
+ * Saves demo requests to MongoDB and sends an
+ * email notification to the admin.
+ */
+
 import express from "express";
-import DemoRequest from "../models/DemoRequest.js";
-import nodemailer from "nodemailer";
 import dotenv from "dotenv";
+import nodemailer from "nodemailer";
+import DemoRequest from "../models/DemoRequest.js";
 
 dotenv.config();
 const router = express.Router();
 
-// --- Nodemailer Transporter Setup ---
+/**
+ * ===========================
+ * Nodemailer Transporter Setup
+ * ===========================
+ * Uses Gmail SMTP via App Password.
+ */
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: process.env.EMAIL_USER, // e.g., yourcompany@gmail.com
-    pass: process.env.EMAIL_PASS, // Gmail App Password (NOT normal password)
+    user: process.env.EMAIL_USER, // e.g. yourcompany@gmail.com
+    pass: process.env.EMAIL_PASS, // Gmail App Password
   },
 });
 
-// --- POST /api/demo ---
-// Save demo request to MongoDB and send admin notification
+/**
+ * @route   POST /api/demo
+ * @desc    Store demo request and notify admin
+ * @access  Public
+ */
 router.post("/", async (req, res) => {
   try {
-    const { name, email, contact, Designation } = req.body;
+    const { name, email, contact, designation } = req.body;
 
-    // Basic validation
-    if (!name || !email || !contact) {
-      return res
-        .status(400)
-        .json({ message: "Name, email, and contact are required." });
+    // --- Validation ---
+    if (!name?.trim() || !email?.trim() || !contact?.trim()) {
+      return res.status(400).json({
+        message: "Name, email, and contact fields are required.",
+      });
     }
 
-    // ✅ Save to MongoDB
+    // --- Save to MongoDB ---
     const demoRequest = await DemoRequest.create({
       name,
       email,
       contact,
-      Designation,
+      designation,
     });
 
-    // ✅ Send email notification
-    await transporter.sendMail({
-      from: `"Acceleott Automations" <${process.env.EMAIL_USER}>`,
-      to: process.env.ADMIN_EMAIL, // e.g., info@acceleott.com
-      subject: `New Demo Request — ${name}`,
-      html: `
-        <h2>New Demo Request Received</h2>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Contact:</strong> ${contact}</p>
-        <p><strong>Company / Designation:</strong> ${Designation || "N/A"}</p>
-        <p><strong>Requested At:</strong> ${new Date().toLocaleString()}</p>
-      `,
-    });
+    // --- Send Admin Notification ---
+    const adminEmail = process.env.ADMIN_EMAIL;
+    if (adminEmail) {
+      await transporter.sendMail({
+        from: `"Acceleott Automations" <${process.env.EMAIL_USER}>`,
+        to: adminEmail,
+        subject: `🧩 New Demo Request — ${name}`,
+        html: `
+          <div style="font-family:Inter,Arial,sans-serif;color:#0f172a">
+            <h2>New Demo Request Received</h2>
+            <p><strong>Name:</strong> ${name}</p>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Contact:</strong> ${contact}</p>
+            <p><strong>Designation:</strong> ${designation || "N/A"}</p>
+            <p><strong>Received At:</strong> ${new Date().toLocaleString()}</p>
+          </div>
+        `,
+      });
+    }
 
-    console.log("✅ Demo request stored and email sent successfully.");
+    console.log("✅ Demo request stored & admin notified.");
 
-    res
+    return res
       .status(201)
-      .json({ message: "✅ Demo request submitted successfully!" });
+      .json({ message: "Demo request submitted successfully." });
   } catch (err) {
-    console.error("❌ Demo Request Error:", err);
-    res.status(500).json({
-      message: "Server error while submitting demo request. Please try again.",
+    console.error("❌ Demo Request Error:", err.message || err);
+    return res.status(500).json({
+      message: "Server error while submitting the demo request. Please try again.",
     });
   }
+});
+
+/**
+ * Catch-all for unsupported HTTP methods
+ */
+router.all("/", (req, res) => {
+  res.status(405).json({ error: `Method ${req.method} not allowed` });
 });
 
 export default router;

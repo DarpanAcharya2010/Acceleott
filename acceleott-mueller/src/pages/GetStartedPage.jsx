@@ -1,10 +1,11 @@
 import React, { useState, useContext } from "react";
-import api from "@/api/axios"; // ✅ uses your centralized config
-import "./getstarted.css"; // keep your existing CSS
-import { AuthContext } from "../context/AuthContext"; // ✅ Added import
+import api from "@/api/axios"; // centralized API config
+import "./getstarted.css";
+import { AuthContext } from "../context/AuthContext";
 
 const GetStartedPage = () => {
-  const { setIsAuthenticated } = useContext(AuthContext); // ✅ Added context
+  const { setIsAuthenticated } = useContext(AuthContext);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -15,6 +16,7 @@ const GetStartedPage = () => {
   });
 
   const [status, setStatus] = useState({ success: null, message: "" });
+  const [loading, setLoading] = useState(false);
 
   // --- Handle input changes ---
   const handleChange = (e) => {
@@ -25,30 +27,34 @@ const GetStartedPage = () => {
   // --- Handle form submission ---
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Prevent double submit
+    if (loading) return;
+
+    setLoading(true);
     setStatus({ success: null, message: "Submitting..." });
 
     try {
-      // ✅ Backend registration endpoint
       const res = await api.post("/auth/register", formData);
-
 
       setStatus({
         success: true,
         message: res?.data?.message || "✅ Registered successfully!",
       });
 
-      if (res.status === 201 || res.status === 200) {
-        // ✅ Save login state (so buttons hide)
-        localStorage.setItem("token", res.data?.token || "registered_user");
+      if (res.status === 200 || res.status === 201) {
+        // Save token or fallback key
+        const token = res.data?.token || "registered_user";
+        localStorage.setItem("token", token);
         setIsAuthenticated(true);
 
-        // ✅ Redirect to home
+        // Redirect after success
         setTimeout(() => {
           window.location.href = "/";
         }, 1500);
       }
 
-      // Reset form
+      // Reset form fields
       setFormData({
         name: "",
         email: "",
@@ -59,36 +65,41 @@ const GetStartedPage = () => {
       });
     } catch (err) {
       console.error("Registration Error:", err);
+
       setStatus({
         success: false,
         message:
           err?.response?.data?.message ||
           "❌ Registration failed. Please try again.",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="page">
       <div className="container">
-        {/* Left section */}
+        {/* LEFT SECTION */}
         <div className="left">
-          <div className="arrow">⬇️</div>
+          <div className="arrow" aria-hidden="true">
+            ⬇️
+          </div>
           <h2>Join Us</h2>
           <p>
             Be a part of our growing network — register to get started and stay
             connected.
           </p>
-          <a href="#about" className="btn">
+          <a href="#about" className="btn" aria-label="Learn more about us">
             About Us
           </a>
         </div>
 
-        {/* Right section */}
+        {/* RIGHT SECTION */}
         <div className="right">
           <h3>Register Here</h3>
 
-          {/* Status message */}
+          {/* Status Message */}
           {status.message && (
             <div
               className={`alert ${
@@ -98,13 +109,14 @@ const GetStartedPage = () => {
                   ? "error"
                   : "info"
               }`}
+              role="alert"
             >
               {status.message}
             </div>
           )}
 
-          {/* Registration form */}
-          <form onSubmit={handleSubmit}>
+          {/* Registration Form */}
+          <form onSubmit={handleSubmit} autoComplete="off">
             <input
               type="text"
               name="name"
@@ -152,9 +164,16 @@ const GetStartedPage = () => {
               value={formData.password}
               onChange={handleChange}
               required
+              minLength={6}
             />
-            <button type="submit" className="register-btn">
-              Register
+
+            <button
+              type="submit"
+              className="register-btn"
+              disabled={loading}
+              aria-busy={loading}
+            >
+              {loading ? "Processing..." : "Register"}
             </button>
           </form>
         </div>

@@ -1,7 +1,11 @@
-import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import "./blogdetail.css";
 
+/**
+ * Ideally, this data should come from an API or CMS.
+ * For demo purposes, it's kept static and exportable.
+ */
 const mockPosts = [
   {
     id: "1",
@@ -68,36 +72,52 @@ Automation is no longer a luxury—it is essential for modern clinics aiming to 
 
 const BlogDetailPage = () => {
   const { id } = useParams();
-  const post = mockPosts.find((p) => p.id === id);
+  const navigate = useNavigate();
+  const [post, setPost] = useState(null);
   const [loaded, setLoaded] = useState(false);
 
-  if (!post) return <p>Blog not found.</p>;
+  useEffect(() => {
+    // ✅ Simulate fetching from backend or static data
+    const foundPost = mockPosts.find((p) => p.id === id);
+    if (!foundPost) {
+      // Graceful fallback if ID is invalid
+      navigate("/404", { replace: true });
+    } else {
+      setPost(foundPost);
+    }
+  }, [id, navigate]);
 
-  // ✅ Improved paragraph splitting logic
+  if (!post) return null;
+
+  // ✅ Improved paragraph splitting logic (handles line breaks, empty spaces, and punctuation)
   const paragraphs = post.content
     .split(/(?:\n\s*\n|(?<=\.)\s+(?=[A-Z]))/g)
     .map((p) => p.trim())
-    .filter((p) => p.length > 0);
+    .filter(Boolean);
 
   return (
-    <div className="blog-detail-container">
-      <div className="blog-text">
-        <h1>{post.title}</h1>
+    <main className="blog-detail-container">
+      <article className="blog-text">
+        <h1 className="blog-title">{post.title}</h1>
         {paragraphs.map((para, index) => (
-          <p key={index}>{para}</p>
+          <p key={index} className="blog-paragraph">
+            {para}
+          </p>
         ))}
-      </div>
+      </article>
 
       <div className="blog-image-container">
         <img
           src={post.image}
           alt={post.title}
-          className={`blog-image ${loaded ? "fade-in" : ""}`}
+          className={`blog-image ${loaded ? "fade-in" : "loading"}`}
           onLoad={() => setLoaded(true)}
+          loading="lazy" // ✅ Better performance
+          decoding="async"
         />
       </div>
-    </div>
+    </main>
   );
 };
 
-export default BlogDetailPage;
+export default React.memo(BlogDetailPage);
