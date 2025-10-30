@@ -14,19 +14,16 @@
 }
 ],
 "rewrites": [
-
 {
-"source": "/api/(.)",
+"source": "/api/(.)", 
 "destination": "/acceleott-backend/server.js"
 },
-
 {
 "source": "/",
 "destination": "/acceleott-mueller/dist/index.html"
 },
-
 {
-"source": "/(.)",
+"source": "/(.)", 
 "destination": "/acceleott-mueller/dist/$1"
 }
 ]
