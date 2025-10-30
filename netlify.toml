@@ -1,26 +1,17 @@
 [build]
-  # Frontend build command
   command = "npm run build"
-  # Directory to publish (Vite builds to /dist)
   publish = "dist"
-
-  # Directory containing backend code
   functions = "netlify/functions"
 
 [functions]
-  # Ensure Node 18+ for compatibility
   node_bundler = "esbuild"
-  included_files = ["netlify/functions/**"]
-  external_node_modules = ["mongoose", "express", "dotenv", "nodemailer"]
 
 [[redirects]]
-  # Redirect all API requests to serverless functions
   from = "/api/*"
   to = "/.netlify/functions/server"
   status = 200
 
 [[redirects]]
-  # Handle React Router (SPA fallback)
   from = "/*"
   to = "/index.html"
   status = 200
