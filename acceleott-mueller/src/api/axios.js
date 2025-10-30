@@ -2,16 +2,16 @@
 import axios from "axios";
 
 /* ------------------------------------------
-   Environment-Safe Base URL
+   Environment-Safe Base URL
 ------------------------------------------ */
 const baseURL =
   import.meta.env.VITE_API_BASE_URL?.trim() ||
   (import.meta.env.DEV
     ? "http://localhost:5000/api" // Local dev fallback
-    : "https://api.acceleott.com/api"); // ✅ Replace with your prod API endpoint
+    : "/api"); // ✅ Corrected: Use relative path /api for Vercel routing
 
 /* ------------------------------------------
-   Create Axios Instance
+   Create Axios Instance
 ------------------------------------------ */
 const axiosInstance = axios.create({
   baseURL,
@@ -24,12 +24,12 @@ const axiosInstance = axios.create({
 });
 
 /* ------------------------------------------
-   Request Interceptor
+   Request Interceptor
 ------------------------------------------ */
 axiosInstance.interceptors.request.use(
   (config) => {
     // Example: attach token if available
-    const token = localStorage.getItem("accessToken");
+    const token = localStorage.getItem("token"); // ✅ Correct: Uses "token"
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -39,7 +39,7 @@ axiosInstance.interceptors.request.use(
 );
 
 /* ------------------------------------------
-   Response Interceptor
+   Response Interceptor
 ------------------------------------------ */
 axiosInstance.interceptors.response.use(
   (response) => response,
@@ -51,7 +51,7 @@ axiosInstance.interceptors.response.use(
       // Token expired or unauthorized
       if (status === 401 || status === 403) {
         console.warn("Unauthorized. Logging out...");
-        localStorage.removeItem("accessToken");
+        localStorage.removeItem("token"); // 🛠️ MODIFIED: Changed "accessToken" to "token"
         // Optionally redirect to login
         window.location.href = "/login";
       }

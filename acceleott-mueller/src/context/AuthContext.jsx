@@ -53,9 +53,14 @@ export const AuthProvider = ({ children }) => {
       const token = localStorage.getItem("token");
       if (!token) return;
 
+      // 🛠️ MODIFICATION: Determine the correct API base URL for deployment/development
+      const apiBase =
+        import.meta.env.VITE_API_BASE_URL?.trim() ||
+        (import.meta.env.DEV ? "http://localhost:5000/api" : "/api"); // Use relative path '/api' on Vercel
+
       try {
         const res = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api"}/auth/validate`,
+          `${apiBase}/auth/validate`, // Use the determined apiBase URL
           {
             headers: { Authorization: `Bearer ${token}` },
           }

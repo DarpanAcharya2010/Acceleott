@@ -13,9 +13,12 @@ export default function DemoRequestPage() {
   const [status, setStatus] = useState({ success: null, message: "" });
   const [loading, setLoading] = useState(false);
 
-  // ✅ Backend URL - automatically adjusts for production
-  const API_URL =
-    import.meta.env.VITE_API_URL || "https://api.acceleott.com/api/demo";
+  // ✅ Production-Ready Fix: Determine API Base URL for Vercel/Local
+  const API_BASE =
+    import.meta.env.VITE_API_BASE_URL?.trim() ||
+    (import.meta.env.DEV ? "http://localhost:5000/api" : "/api");
+  
+  const API_URL = `${API_BASE}/demo`; // Dynamically construct the full URL
 
   // ✅ Handle input changes (controlled form)
   const handleChange = (e) => {
@@ -64,6 +67,7 @@ export default function DemoRequestPage() {
     setStatus({ success: null, message: "Submitting your request..." });
 
     try {
+      // ✅ Using the dynamic API_URL
       const res = await axios.post(API_URL, formData, {
         headers: { "Content-Type": "application/json" },
         timeout: 10000, // 10s timeout

@@ -1,26 +1,27 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "server.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "frontend/dist/**/*",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/server.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/frontend/dist/index.html"
-    }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+"version": 2,
+"builds": [
+{
+"src": "acceleott-mueller/package.json",
+"use": "@vercel/static-build",
+"config": {
+"distDir": "dist" }
+},
+{
+"src": "acceleott-backend/server.js",
+"use": "@vercel/node",
+"config": {
+}
+}
+],
+"rewrites": [
+{
+"source": "/api/(.)",
+"destination": "/acceleott-backend/server.js"
+},
+{
+"source": "/(.)",
+"destination": "/acceleott-backend/server.js"
+}
+]
 }
