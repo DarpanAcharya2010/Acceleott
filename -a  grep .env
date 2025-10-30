@@ -1,0 +1,41 @@
+[35macceleott-backend/.env[m[36m:[m[32m1[m[36m:[m[1;31mMONGO_URI[m=mongodb+srv://darpanacharya2002_db_user:Bruno_1808@cluster0.npbwg9n.mongodb.net/?appName=Cluster0
+[35macceleott-backend/.env[m[36m:[m[32m5[m[36m:[m[1;31mBACKEND_URL[m=https://api.acceleott.com
+[35macceleott-backend/.env[m[36m:[m[32m7[m[36m:[m[1;31mJWT_SECRET[m=e28c3fe20460d493e5a17da7606a66cef68aaef083a965c5fbc022d96487033e217dfebe37cf7683251f5fe360c8831813b5aa123213074ebdd15ae63f183b1d
+[35macceleott-backend/.env[m[36m:[m[32m10[m[36m:[m[1;31mEMAIL_USER[m=darpanacharya2002@gmail.com
+[35macceleott-backend/.env[m[36m:[m[32m11[m[36m:[m[1;31mEMAIL_PASS[m=gfqk rlze adew jxrg
+[35macceleott-backend/config/db.js[m[36m:[m[32m4[m[36m:[m  const mongoURI = process.env.[1;31mMONGO_URI[m;
+[35macceleott-backend/config/db.js[m[36m:[m[32m7[m[36m:[m    console.error("❌ [1;31mMONGO_URI[m not found in environment variables.");
+[35macceleott-backend/controllers/authController.js[m[36m:[m[32m13[m[36m:[m    user: process.env.[1;31mEMAIL_USER[m,
+[35macceleott-backend/controllers/authController.js[m[36m:[m[32m14[m[36m:[m    pass: process.env.[1;31mEMAIL_PASS[m,
+[35macceleott-backend/controllers/authController.js[m[36m:[m[32m58[m[36m:[m    const { name, email, [1;31mpassword[m, phone, occupation, source } = req.body;
+[35macceleott-backend/controllers/authController.js[m[36m:[m[32m60[m[36m:[m    if (!name || !email || ![1;31mpassword[m)
+[35macceleott-backend/controllers/authController.js[m[36m:[m[32m61[m[36m:[m      return res.status(400).json({ message: "Name, email, and [1;31mpassword[m are required." });
+[35macceleott-backend/controllers/authController.js[m[36m:[m[32m67[m[36m:[m    const hashed = await bcrypt.hash([1;31mpassword[m, salt);
+[35macceleott-backend/controllers/authController.js[m[36m:[m[32m72[m[36m:[m      [1;31mpassword[m: hashed,
+[35macceleott-backend/controllers/authController.js[m[36m:[m[32m91[m[36m:[m      from: process.env.EMAIL_FROM || process.env.[1;31mEMAIL_USER[m,
+[35macceleott-backend/controllers/authController.js[m[36m:[m[32m100[m[36m:[m        from: process.env.EMAIL_FROM || process.env.[1;31mEMAIL_USER[m,
+[35macceleott-backend/controllers/authController.js[m[36m:[m[32m177[m[36m:[m      from: process.env.EMAIL_FROM || process.env.[1;31mEMAIL_USER[m,
+[35macceleott-backend/controllers/authController.js[m[36m:[m[32m195[m[36m:[m    const { email, [1;31mpassword[m } = req.body;
+[35macceleott-backend/controllers/authController.js[m[36m:[m[32m196[m[36m:[m    if (!email || ![1;31mpassword[m)
+[35macceleott-backend/controllers/authController.js[m[36m:[m[32m197[m[36m:[m      return res.status(400).json({ message: "Email and [1;31mpassword[m required." });
+[35macceleott-backend/controllers/authController.js[m[36m:[m[32m205[m[36m:[m    const isMatch = await bcrypt.compare([1;31mpassword[m, user.[1;31mpassword[m);
+[35macceleott-backend/controllers/authController.js[m[36m:[m[32m208[m[36m:[m    const token = jwt.sign({ id: user._id }, process.env.[1;31mJWT_SECRET[m, { expiresIn: "1d" });
+[35macceleott-backend/controllers/authController.js[m[36m:[m[32m247[m[36m:[m    const decoded = jwt.verify(token, process.env.[1;31mJWT_SECRET[m);
+[35macceleott-backend/controllers/authController.js[m[36m:[m[32m249[m[36m:[m      .select("-[1;31mpassword[m -verifyToken -verifyTokenExpires");
+[35macceleott-backend/controllers/contactController.js[m[36m:[m[32m10[m[36m:[m    user: process.env.[1;31mEMAIL_USER[m,
+[35macceleott-backend/controllers/contactController.js[m[36m:[m[32m11[m[36m:[m    pass: process.env.[1;31mEMAIL_PASS[m,
+[35macceleott-backend/controllers/contactController.js[m[36m:[m[32m68[m[36m:[m      from: process.env.EMAIL_FROM || process.env.[1;31mEMAIL_USER[m,
+[35macceleott-backend/controllers/contactController.js[m[36m:[m[32m69[m[36m:[m      to: process.env.CONTACT_RECEIVER || process.env.ADMIN_EMAIL || process.env.[1;31mEMAIL_USER[m,
+[35macceleott-backend/controllers/demoController.js[m[36m:[m[32m10[m[36m:[m    user: process.env.[1;31mEMAIL_USER[m, // e.g., yourcompany@gmail.com
+[35macceleott-backend/controllers/demoController.js[m[36m:[m[32m11[m[36m:[m    pass: process.env.[1;31mEMAIL_PASS[m, // Gmail App Password (never your normal [1;31mpassword[m)
+[35macceleott-backend/controllers/demoController.js[m[36m:[m[32m41[m[36m:[m      from: `"AIMMED Demo" <${process.env.EMAIL_FROM || process.env.[1;31mEMAIL_USER[m}>`,
+[35macceleott-backend/controllers/demoController.js[m[36m:[m[32m42[m[36m:[m      to: process.env.ADMIN_EMAIL || process.env.[1;31mEMAIL_USER[m,
+[35macceleott-backend/middleware/auth.js[m[36m:[m[32m23[m[36m:[m    const decoded = jwt.verify(token, process.env.[1;31mJWT_SECRET[m);
+[35macceleott-backend/models/User.js[m[36m:[m[32m6[m[36m:[m * Includes strong validation, hashed [1;31mpassword[ms, and verification support.
+[35macceleott-backend/models/User.js[m[36m:[m[32m28[m[36m:[m    [1;31mpassword[m: {
+[35macceleott-backend/models/User.js[m[36m:[m[32m32[m[36m:[m      select: false, // ⛔ Prevent [1;31mpassword[m from being returned in queries by default
+[35macceleott-backend/models/User.js[m[36m:[m[32m79[m[36m:[m  if (!this.isModified("[1;31mpassword[m")) return next();
+[35macceleott-backend/models/User.js[m[36m:[m[32m82[m[36m:[m    this.[1;31mpassword[m = await bcrypt.hash(this.[1;31mpassword[m, salt);
+[35macceleott-backend/models/User.js[m[36m:[m[32m93[m[36m:[m  return await bcrypt.compare(candidatePassword, this.[1;31mpassword[m);
+[35macceleott-backend/node_modules/@eslint/config-array/README.md[m[36m:[m[32m367[m[36m:[m<p><a href="https://netlify.com"><img src="https://raw.githubusercontent.com/eslint/eslint.org/main/src/assets/images/techsponsors/netlify-icon.svg" alt="Netlify" height="32"></a> <a href="https://algolia.com"><img src="https://raw.githubusercontent.com/eslint/eslint.org/main/src/assets/images/techsponsors/algolia-icon.svg" alt="Algolia" height="32"></a> <a href="https://1[1;31mpassword[m.com"><img src="https://raw.githubusercontent.com/eslint/eslint.org/main/src/assets/images/techsponsors/1[1;31mpassword[m-icon.svg" alt="1Password" height="32"></a></p>
+[35macceleott-backend/node_modules/@eslint/config-helpers/README.md[m[36m:[m[32m96[m[36m:[m<p><a href="https://netlify.com"><img src="https://raw.githubusercontent.com/eslint/eslint.org/main/src/assets/images/techsponsors/netlify-icon.svg" alt="Netlify" height="32"></a> <a href="https://algolia.com"><img src="https://raw.githubusercontent.com/eslint/eslint.org/main/src/assets/images/techsponsors/algolia-icon.svg" alt="Algolia" height="32"></a> <a href="https://1[1;31mpassword[m.com"><img src="https://raw.githubusercontent.com/eslint/eslint.org/main/src/assets/images/techsponsors/1[1;31mpassword[m-icon.svg" alt="1Password" height="32"></a></p>
