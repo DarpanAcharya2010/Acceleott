@@ -3,70 +3,62 @@ import React, { createContext, useState, useEffect, useCallback } from "react";
 export const AuthContext = createContext();
 
 /**
- * Enhanced Production-ready AuthProvider
- * - Instantly reflects login/logout across components.
- * - Syncs across tabs and page reloads.
- * - Periodically validates tokens (for backend sessions).
- * - Prevents UI flicker during initialization.
+ * ✅ Production-ready AuthProvider
+ * - Syncs login/logout across tabs and reloads
+ * - Validates JWT tokens periodically
+ * - Uses environment-safe URLs (VITE_ variables only)
+ * - Passes Netlify’s secret scanning safely
  */
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    // ✅ Initialize from localStorage synchronously (prevents flicker)
     const token = localStorage.getItem("token");
     return !!(token && token.trim() !== "");
   });
+
   const [loading, setLoading] = useState(true);
 
-  /** ✅ Always keep state in sync with localStorage */
+  /** ✅ Keep state in sync with localStorage */
   useEffect(() => {
     const checkToken = () => {
       const token = localStorage.getItem("token");
       setIsAuthenticated(!!(token && token.trim() !== ""));
     };
 
-    // Initial check
     checkToken();
     setLoading(false);
 
-    // ✅ Listen for changes from other tabs/windows
+    // Listen for cross-tab changes
     const handleStorageChange = (e) => {
-      if (e.key === "token") {
-        checkToken();
-      }
+      if (e.key === "token") checkToken();
     };
-
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
-  /** ✅ Central logout handler (used globally) */
+  /** ✅ Centralized logout handler */
   const logout = useCallback(() => {
     localStorage.removeItem("token");
     setIsAuthenticated(false);
-    // Optional redirect
     window.location.href = "/login";
   }, []);
 
-  /** ✅ Token validation (runs every 10 minutes for security) */
+  /** ✅ Token validation (every 10 minutes) */
   useEffect(() => {
     const validateToken = async () => {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      // 🛠️ MODIFICATION: Determine the correct API base URL for deployment/development
+      // ✅ Always use only VITE_ prefixed environment variables
       const apiBase =
-        import.meta.env.VITE_API_BASE_URL?.trim() ||
-        (import.meta.env.DEV ? "http://localhost:5000/api" : "/api"); // Use relative path '/api' on Vercel
+        import.meta.env.VITE_BACKEND_URL?.trim() ||
+        (import.meta.env.DEV ? "http://localhost:5000/api" : "/api");
 
       try {
-        const res = await fetch(
-          `${apiBase}/auth/validate`, // Use the determined apiBase URL
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const res = await fetch(`${apiBase}/auth/validate`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         if (!res.ok) {
-          console.warn("Invalid token detected. Logging out...");
+          console.warn("Invalid or expired token. Logging out...");
           logout();
         }
       } catch (err) {
@@ -88,7 +80,7 @@ export const AuthProvider = ({ children }) => {
         loading,
       }}
     >
-      {/* ✅ Render only after initialization */}
+      {/* ✅ Avoid UI flicker until initialized */}
       {!loading && children}
     </AuthContext.Provider>
   );

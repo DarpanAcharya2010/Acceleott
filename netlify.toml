@@ -1,33 +1,49 @@
-# ===========================
-# Netlify Configuration File
-# ===========================
+# ==============================
+# ✅ Netlify Production Config
+# React + Vite + Express/Mongo backend (API hosted separately)
+# Safe against secret-scanner false positives
+# ==============================
 
 [build]
-  base = "acceleott-mueller"
+  base = "."                     # Root folder (acceleott-webb)
   command = "npm run build"
-  publish = "acceleott-mueller/dist"
+  publish = "dist"               # Vite output directory
 
-[build.environment]
-  NODE_ENV = "development"
-  NPM_CONFIG_PRODUCTION = "false"
-  NODE_VERSION = "20"
+  [build.environment]
+    NODE_VERSION = "20"
+    NPM_FLAGS = "--legacy-peer-deps"
+    # ✅ Disable or limit secret scanning (safe for frontend)
+    SECRETS_SCAN_ENABLED = "true"
+    SECRETS_SCAN_OMIT_PATHS = "node_modules/**,dist/**"
+    SECRETS_SCAN_OMIT_KEYS = "FRONTEND_URL,NODE_ENV,PORT,ADMIN_EMAIL"
+    VITE_BACKEND_URL = "https://your-backend.netlify.app/api"
+    VITE_FRONTEND_URL = "https://acceleott-webb.netlify.app"
 
-  # ✅ Ignore false positive secret detections
-  SECRETS_SCAN_OMIT_KEYS = "FRONTEND_URL,NODE_ENV,PORT,ADMIN_EMAIL"
-  SECRETS_SCAN_OMIT_PATHS = "node_modules/**,dist/**"
-
-  # (optional) Uncomment if scanner still blocks build
-  # SECRETS_SCAN_ENABLED = "false"
-
+# ==============================
+# ✅ Redirect all routes to index.html (SPA)
+# ==============================
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
+# ==============================
+# ✅ Security + Cache Headers
+# ==============================
 [[headers]]
   for = "/*"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
-    X-Frame-Options = "DENY"
-    X-XSS-Protection = "1; mode=block"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+
+# ==============================
+# ✅ Optional Dev Command (for local Netlify dev)
+# ==============================
+[dev]
+  command = "npm run dev"
+  port = 5173
+  targetPort = 5173
+  publish = "dist"

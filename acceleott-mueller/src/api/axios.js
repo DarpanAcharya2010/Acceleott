@@ -2,34 +2,34 @@
 import axios from "axios";
 
 /* ------------------------------------------
-   Environment-Safe Base URL
+   Environment-Safe Base URL (Netlify & Vercel)
 ------------------------------------------ */
 const baseURL =
+  import.meta.env.VITE_BACKEND_URL?.trim() ||
   import.meta.env.VITE_API_BASE_URL?.trim() ||
   (import.meta.env.DEV
-    ? "http://localhost:5000/api" // Local dev fallback
-    : "/api"); // ✅ Corrected: Use relative path /api for Vercel routing
+    ? "http://localhost:5000/api" // Local dev server
+    : "/api"); // ✅ Relative path for production (auto-resolves on Netlify/Vercel)
 
 /* ------------------------------------------
-   Create Axios Instance
+   Create Axios Instance
 ------------------------------------------ */
 const axiosInstance = axios.create({
   baseURL,
-  withCredentials: true, // Needed for cookies/sessions (CORS must allow)
+  withCredentials: true, // ✅ Needed if backend uses cookies
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
   },
-  timeout: 10000, // ⏱ prevent hanging requests
+  timeout: 10000, // ⏱ Prevent hanging requests
 });
 
 /* ------------------------------------------
-   Request Interceptor
+   Request Interceptor
 ------------------------------------------ */
 axiosInstance.interceptors.request.use(
   (config) => {
-    // Example: attach token if available
-    const token = localStorage.getItem("token"); // ✅ Correct: Uses "token"
+    const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -39,31 +39,32 @@ axiosInstance.interceptors.request.use(
 );
 
 /* ------------------------------------------
-   Response Interceptor
+   Response Interceptor
 ------------------------------------------ */
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    // ✅ Centralized error handling for production
     if (error.response) {
       const { status } = error.response;
 
-      // Token expired or unauthorized
+      // 🛑 Token invalid or expired
       if (status === 401 || status === 403) {
-        console.warn("Unauthorized. Logging out...");
-        localStorage.removeItem("token"); // 🛠️ MODIFIED: Changed "accessToken" to "token"
-        // Optionally redirect to login
+        console.warn("Session expired or unauthorized. Logging out...");
+        localStorage.removeItem("token");
         window.location.href = "/login";
       }
 
-      // Log server errors in production with controlled message
+      // 🚨 Log 500+ errors gracefully (without exposing stack traces)
       if (status >= 500) {
-        console.error("Server Error:", error.response.data?.message || error.message);
+        console.error(
+          "Server Error:",
+          error.response.data?.message || "Unexpected error occurred."
+        );
       }
     } else if (error.request) {
-      console.error("No response from server. Check network connection.");
+      console.error("No response from server. Check network or CORS.");
     } else {
-      console.error("Axios config error:", error.message);
+      console.error("Axios configuration error:", error.message);
     }
 
     return Promise.reject(error);
