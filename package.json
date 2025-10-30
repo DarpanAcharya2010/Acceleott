@@ -4,7 +4,7 @@
   "private": true,
   "description": "Unified deployment for Acceleott frontend (React) and backend (Express + MongoDB).",
   "scripts": {
-    "build": "cd acceleott-mueller && npm install && npm run build",
+    "build": "echo 'Building frontend via Vercel config'",
     "start": "node acceleott-backend/server.js"
   },
   "dependencies": {
