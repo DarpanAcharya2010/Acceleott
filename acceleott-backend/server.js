@@ -1,9 +1,11 @@
 /**
  * ============================================================
- *  Acceleott Fullstack Server (Backend + Frontend on Vercel)
+ *  Acceleott Fullstack Server (Backend + Frontend on Vercel)
  * ============================================================
- * ✅ Unified server for API and static asset serving (e.g., Vercel deployment).
- * ✅ Handles MongoDB connection and JWT/Nodemailer logic.
+ *  ✅ Works seamlessly on Vercel (frontend + backend)
+ *  ✅ Serves React build files automatically
+ *  ✅ Connects to MongoDB Atlas in production
+ *  ✅ Keeps all routes, nodemailer, and JWT logic intact
  * ============================================================
  */
 
@@ -16,59 +18,38 @@ import path from "path";
 import { fileURLToPath } from "url";
 import nodemailer from "nodemailer";
 
-// --- Import Routes (Ensure these file paths are correct in your project) ---
 import authRoutes from "./routes/auth.js";
 import demoRoutes from "./routes/demoRoutes.js";
 
 // ================================
-// 1. Setup and Environment
+// Setup and Environment
 // ================================
 dotenv.config();
-
 const isVercel = !!process.env.VERCEL;
-const isProduction = process.env.NODE_ENV === "production" || isVercel;
-
-// Path setup for static assets
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-// Adjust this path based on where your frontend 'dist' folder lands relative to this file.
-// This assumes server.js is in 'backend/' or 'api/' and 'dist' is at the project root.
-const FE_DIST_PATH = path.join(__dirname, '..', '..', 'dist'); 
 
-// ================================
-// 2. MongoDB Connection
-// ================================
-const mongoURI = process.env.MONGODB_URI;
-
-if (!mongoURI) {
-    console.error("❌ MONGODB_URI is missing. Server cannot start.");
-    if (!isVercel) process.exit(1); // Only exit locally
-} else {
-    mongoose
-      .connect(mongoURI)
-      .then(() => console.log("✅ MongoDB connected successfully"))
-      .catch((err) => {
-        console.error("❌ MongoDB connection failed:", err.message);
-        if (!isVercel) process.exit(1);
-      });
+// Validate environment variables
+const requiredEnvVars = ["MONGODB_URI", "EMAIL_USER", "EMAIL_PASS", "JWT_SECRET"];
+const missingVars = requiredEnvVars.filter((key) => !process.env[key]);
+if (missingVars.length > 0) {
+  console.warn(`⚠️ Missing environment variables: ${missingVars.join(", ")}. Check .env or Vercel settings.`);
 }
 
-
 // ================================
-// 3. Express App Setup & Middleware
+// Express App Setup
 // ================================
 const app = express();
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// CORS Configuration (Crucial for local dev to communicate with Vite/React)
-if (!isProduction) {
+// CORS for local development
+if (!isVercel) {
   app.use(
     cors({
-      origin: FRONTEND_URL,
+      origin: process.env.FRONTEND_URL || "http://localhost:5173",
       credentials: true,
       methods: ["GET", "POST", "PUT", "DELETE"],
     })
@@ -76,18 +57,18 @@ if (!isProduction) {
 }
 
 // ================================
-// 4. Backend API Routes
+// Backend Routes
 // ================================
 app.use("/api/auth", authRoutes);
 app.use("/api/demo", demoRoutes);
 
-// Test email route (For debugging connection)
+// Test email route
 app.post("/api/test-email", async (req, res) => {
-  const { to, subject, text } = req.body;
-  if (!to || !subject || !text)
-    return res.status(400).json({ message: "❌ Missing email fields" });
-
   try {
+    const { to, subject, text } = req.body;
+    if (!to || !subject || !text)
+      return res.status(400).json({ message: "❌ Missing email fields" });
+
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -105,52 +86,59 @@ app.post("/api/test-email", async (req, res) => {
 
     res.status(200).json({ message: "✅ Test email sent successfully" });
   } catch (err) {
-    console.error("❌ Email sending failed:", err.message);
+    console.error("❌ Email sending failed:", err);
     res.status(500).json({ message: "Internal server error while sending email." });
   }
 });
 
+// ================================
+// MongoDB Connection
+// ================================
+const mongoURI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/acceleottDB";
+
+mongoose
+  .connect(mongoURI, {
+    serverSelectionTimeoutMS: 10000,
+  })
+  .then(() => console.log("✅ MongoDB connected successfully"))
+  .catch((err) => {
+    console.error("❌ MongoDB connection failed:", err.message);
+    process.exit(1);
+  });
 
 // ================================
-// 5. Serve Frontend (Static Assets)
+// Serve Frontend (React/Vite)
 // ================================
-if (isProduction) {
-    console.log(`Serving static files from: ${FE_DIST_PATH}`);
+// ⚠️ IMPORTANT: adjust this to your actual frontend build folder
+const frontendPath = path.join(__dirname, "../acceleott-mueller/dist");
+app.use(express.static(frontendPath));
 
-    // Serve static files from the frontend build folder
-    app.use(express.static(FE_DIST_PATH));
-
-    // Fallback route: serve index.html for all non-API GET requests
-    app.get("*", (req, res) => {
-        // If the request path is not an API path, serve index.html
-        if (!req.originalUrl.startsWith("/api")) {
-             return res.sendFile(path.join(FE_DIST_PATH, "index.html"));
-        }
-        res.status(404).json({ message: "API endpoint not found" });
-    });
-} else {
-    // Local dev: Sanity check for the root route
-    app.get("/", (req, res) => res.send(`Acceleott API is running locally (Frontend served by Vite at ${FRONTEND_URL})`));
-}
-
-// ================================
-// 6. Error Handling
-// ================================
-app.use((err, req, res, next) => {
-  console.error("Server Error:", err.stack);
-  res.status(500).json({ message: "Internal Server Error." });
+// Fallback route — serve index.html for all non-API routes
+app.get("*", (req, res) => {
+  if (req.originalUrl.startsWith("/api")) {
+    res.status(404).json({ message: "API route not found" });
+  } else {
+    res.sendFile(path.join(frontendPath, "index.html"));
+  }
 });
 
 // ================================
-// 7. Start Server (Local Only) & Vercel Export
+// Start Server (Local Only)
 // ================================
 const PORT = process.env.PORT || 5000;
 if (!isVercel) {
   app.listen(PORT, () => {
     console.log(`🚀 Server running locally at http://localhost:${PORT}`);
-    console.log(`Frontend URL: ${FRONTEND_URL}`);
   });
 }
 
-// Vercel requires the app to be exported for the serverless function
+// ================================
+// Graceful Shutdown
+// ================================
+process.on("SIGINT", async () => {
+  console.log("\n🛑 Shutting down gracefully...");
+  await mongoose.connection.close();
+  process.exit(0);
+});
+
 export default app;
