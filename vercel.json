@@ -1,27 +1,31 @@
 {
 "version": 2,
 "builds": [
+
 {
 "src": "acceleott-mueller/package.json",
-"use": "@vercel/static-build",
-"config": {
-"distDir": "dist" }
-},
-{
-"src": "acceleott-backend/server.js",
 "use": "@vercel/node",
 "config": {
+
+"buildCommand": "npm install --prefix acceleott-mueller && npm run --prefix acceleott-mueller build"
 }
+},
+
+{
+"src": "acceleott-backend/server.js",
+"use": "@vercel/node"
 }
 ],
 "rewrites": [
+
 {
 "source": "/api/(.)",
 "destination": "/acceleott-backend/server.js"
 },
+
 {
 "source": "/(.)",
-"destination": "/acceleott-backend/server.js"
+"destination": "/acceleott-mueller/dist/$1"
 }
 ]
 }
