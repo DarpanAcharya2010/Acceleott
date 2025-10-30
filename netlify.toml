@@ -1,39 +1,29 @@
 # ===========================
 # Netlify Configuration File
-# For React + Vite Project inside subfolder (acceleott-mueller)
 # ===========================
 
 [build]
-  # Tell Netlify to go inside the frontend folder to build
   base = "acceleott-mueller"
   command = "npm run build"
   publish = "acceleott-mueller/dist"
 
 [build.environment]
-  # ✅ Ensure devDependencies (like Vite) are installed
   NODE_ENV = "development"
   NPM_CONFIG_PRODUCTION = "false"
-
-  # ✅ Use stable Node version
   NODE_VERSION = "20"
 
-  # ✅ Avoid false positives from Netlify secret scanning
+  # ✅ Ignore false positive secret detections
+  SECRETS_SCAN_OMIT_KEYS = "FRONTEND_URL,NODE_ENV,PORT,ADMIN_EMAIL"
   SECRETS_SCAN_OMIT_PATHS = "node_modules/**,dist/**"
 
-  # ✅ Uncomment if Netlify still blocks your build for false positives
+  # (optional) Uncomment if scanner still blocks build
   # SECRETS_SCAN_ENABLED = "false"
 
-# ===========================
-# Redirects for React Router
-# ===========================
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
-# ===========================
-# Optional Security Headers
-# ===========================
 [[headers]]
   for = "/*"
   [headers.values]
