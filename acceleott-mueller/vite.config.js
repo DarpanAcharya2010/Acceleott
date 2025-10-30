@@ -11,6 +11,9 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
 
   return {
+    // ✅ Ensure assets and routes resolve correctly on Netlify
+    base: "/",
+
     plugins: [react()],
 
     resolve: {
@@ -20,18 +23,16 @@ export default defineConfig(({ mode }) => {
     },
 
     server: {
-      port: 5173,
-      open: true,
-      strictPort: true,
-      proxy: {
-        "/api": {
-          // ✅ Use VITE_BACKEND_URL for backend requests
-          target: env.VITE_BACKEND_URL || "http://localhost:5000",
-          changeOrigin: true,
-          secure: false,
-        },
-      },
+  open: true,
+  proxy: {
+    "/api": {
+      target: env.VITE_BACKEND_URL || "http://localhost:5000",
+      changeOrigin: true,
+      secure: false,
     },
+  },
+},
+
 
     build: {
       outDir: "dist",
