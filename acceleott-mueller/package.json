@@ -6,7 +6,6 @@
   "description": "Acceleott — From Manual to Magical. A modern automation platform connecting healthcare, marketing, and business operations with AI-driven efficiency.",
   "author": "Acceleott Automations <contact@acceleott.com>",
   "license": "MIT",
-
   "scripts": {
     "dev": "vite --port 5173",
     "build": "vite build",
@@ -14,7 +13,6 @@
     "lint": "eslint src --ext .js,.jsx --max-warnings=0",
     "format": "prettier --write ."
   },
-
   "dependencies": {
     "aos": "^2.3.4",
     "axios": "^1.11.0",
@@ -24,21 +22,18 @@
     "react-router-dom": "^7.9.4",
     "react-toastify": "^11.0.5"
   },
-
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.1",
-    "vite": "^5.2.0",
     "eslint": "^9.10.0",
     "eslint-plugin-react": "^7.35.0",
     "eslint-plugin-react-hooks": "^5.1.0",
-    "prettier": "^3.3.3"
+    "prettier": "^3.3.3",
+    "vite": "^5.4.21"
   },
-
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=9.0.0"
   },
-
   "keywords": [
     "acceleott",
     "automation",
@@ -50,7 +45,6 @@
     "crm",
     "business-intelligence"
   ],
-
   "homepage": "https://acceleott.com",
   "bugs": {
     "url": "https://github.com/DarpanAcharya2010/Acceleott/issues"
