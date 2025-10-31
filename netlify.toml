@@ -1,23 +1,25 @@
 # ======================================
 # ✅ Netlify Config (Frontend + Serverless Backend)
-# Secure — ignores safe keys like NODE_ENV, PORT, ADMIN_EMAIL
+# For React (Vite) + Functions Setup
 # ======================================
 
 [build]
-  base = "acceleott-mueller"
+  base = "acceleott-mueller"          # 👈 ensures npm install runs inside this folder
   command = "npm run build"
-  publish = "acceleott-mueller/dist"
-  functions = "netlify/functions"
+  publish = "dist"                    # 👈 relative to the base folder
+  functions = "../netlify/functions"  # 👈 go up one level to reach functions folder
 
-  [build.environment]
-    NODE_VERSION = "20"
-    NPM_FLAGS = "--legacy-peer-deps"
-    PUBLIC_API_BASE = "/.netlify/functions/server"
+[build.environment]
+  NODE_VERSION = "20"
+  NODE_ENV = "production"
+  NPM_CONFIG_PRODUCTION = "false"
+  NPM_FLAGS = "--legacy-peer-deps"
+  PUBLIC_API_BASE = "/.netlify/functions/server"
 
-    # ✅ Allow harmless env variable names (not real secrets)
-    SECRETS_SCAN_ENABLED = "true"
-    SECRETS_SCAN_OMIT_KEYS = "NODE_ENV,PORT,ADMIN_EMAIL"
-    SECRETS_SCAN_OMIT_PATHS = "node_modules/**,dist/**,acceleott-mueller/**"
+  # ✅ Safe secret scan config
+  SECRETS_SCAN_ENABLED = "true"
+  SECRETS_SCAN_OMIT_KEYS = "NODE_ENV,PORT,ADMIN_EMAIL"
+  SECRETS_SCAN_OMIT_PATHS = "node_modules/**,dist/**"
 
 # ======================================
 # ✅ SPA Redirects
@@ -45,4 +47,4 @@
 [dev]
   command = "npm run dev"
   port = 5173
-  publish = "acceleott-mueller/dist"
+  publish = "dist"
