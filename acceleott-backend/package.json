@@ -2,13 +2,13 @@
   "name": "acceleott-backend",
   "version": "1.0.0",
   "description": "Production-ready backend server for the Acceleott platform.",
-  "main": "server.js",
+  "main": "netlify/functions/server.js",
   "type": "module",
   "scripts": {
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "server": "nodemon server.js",
     "client": "cd ../acceleott-mueller && npm run dev",
-    "start": "node server.js",
+    "start": "node netlify/functions/server.js",
     "lint": "eslint . --ext .js,.jsx,.mjs"
   },
   "keywords": [

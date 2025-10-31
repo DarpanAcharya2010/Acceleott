@@ -29,7 +29,7 @@
     />
     <meta name="twitter:image" content="/images/preview.jpg" />
 
-    <!-- ✅ Fonts & Preconnect -->
+    <!-- ✅ Preconnect & Font Optimization -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -42,27 +42,25 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
 
-    <!-- ✅ Preload Key Assets -->
+    <!-- ✅ Preload Hero Image (for faster LCP) -->
     <link rel="preload" as="image" href="/images/hero-car.jpg" />
 
-    <!-- ✅ Security Headers -->
+    <!-- ✅ Security & PWA Meta -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta
-      http-equiv="Content-Security-Policy"
-      content="default-src 'self' https:; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:;"
-    />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:;" />
 
-    <!-- ✅ Entry Scripts (Vite replaces at build) -->
-    <script type="module" crossorigin src="/assets/index.js"></script>
-    <link rel="modulepreload" href="/assets/vendor.js" />
-    <link rel="stylesheet" href="/assets/index.css" />
+    <script type="module" crossorigin src="/assets/index-BXNOzRv6.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/react-KEM1KK5Q.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-CSYuk0ps.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-DIm143F6.css">
   </head>
-
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <noscript>
+      You need to enable JavaScript to run this app.
+    </noscript>
 
     <div id="root"></div>
 
-    <!-- ✅ No secrets, tokens, or env vars are exposed -->
+    <!-- ✅ App Entry -->
   </body>
 </html>
