@@ -2,26 +2,26 @@
 import axios from "axios";
 
 /* ------------------------------------------
-   Environment-Safe Base URL (Netlify & Vercel)
+   🌐 Safe Base URL (Works for Local + Netlify + Vercel)
 ------------------------------------------ */
 const baseURL =
   import.meta.env.VITE_BACKEND_URL?.trim() ||
   import.meta.env.VITE_API_BASE_URL?.trim() ||
   (import.meta.env.DEV
-    ? "http://localhost:5000/api" // Local dev server
-    : "/api"); // ✅ Relative path for production (auto-resolves on Netlify/Vercel)
+    ? "http://localhost:5000/api" // 🧑‍💻 Local development
+    : "/.netlify/functions/server/api"); // 🌍 Production (Netlify serverless function)
 
 /* ------------------------------------------
    Create Axios Instance
 ------------------------------------------ */
 const axiosInstance = axios.create({
   baseURL,
-  withCredentials: true, // ✅ Needed if backend uses cookies
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
   },
-  timeout: 10000, // ⏱ Prevent hanging requests
+  timeout: 10000,
 });
 
 /* ------------------------------------------
@@ -30,9 +30,7 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+    if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
   (error) => Promise.reject(error)
@@ -47,14 +45,12 @@ axiosInstance.interceptors.response.use(
     if (error.response) {
       const { status } = error.response;
 
-      // 🛑 Token invalid or expired
       if (status === 401 || status === 403) {
         console.warn("Session expired or unauthorized. Logging out...");
         localStorage.removeItem("token");
         window.location.href = "/login";
       }
 
-      // 🚨 Log 500+ errors gracefully (without exposing stack traces)
       if (status >= 500) {
         console.error(
           "Server Error:",
