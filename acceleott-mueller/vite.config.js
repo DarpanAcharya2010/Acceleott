@@ -23,16 +23,16 @@ export default defineConfig(({ mode }) => {
     },
 
     server: {
-  open: true,
-  proxy: {
-    "/api": {
-      target: env.VITE_BACKEND_URL || "http://localhost:5000",
-      changeOrigin: true,
-      secure: false,
+      open: true,
+      proxy: {
+        "/api": {
+          // ✅ Do not hardcode localhost or PORT
+          target: env.VITE_BACKEND_URL || "http://localhost:5000",
+          changeOrigin: true,
+          secure: false,
+        },
+      },
     },
-  },
-},
-
 
     build: {
       outDir: "dist",
