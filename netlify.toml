@@ -3,10 +3,10 @@
 # ======================================
 
 [build]
-  base = "acceleott-mueller"           # Frontend build folder
+  base = "acceleott-mueller"          # frontend folder
   command = "npm install && npm run build"
-  publish = "acceleott-mueller/dist"   # Built React app
-  functions = "acceleott-backend/netlify/functions"  # Backend functions folder
+  publish = "acceleott-mueller/dist"  # ✅ corrected publish path
+  functions = "../acceleott-backend/netlify/functions"
 
 # ======================================
 # ✅ Environment Variables (managed in Netlify Dashboard)
