@@ -1,20 +1,20 @@
 # ======================================
-# ✅ Netlify Config (Frontend + Backend)
+# ✅ Unified Netlify Config (Frontend + Backend)
 # ======================================
 
 [build]
-  base = "acceleott-mueller"              # Frontend folder
-  command = "npm vite build"
-  publish = "acceleott-mueller/dist"      # ✅ Correct publish folder
-  functions = "../acceleott-backend/netlify-functions"  # ✅ Go up one level
+  base = "acceleott-mueller"                # Run build from frontend folder
+  command = "npm run build"                 # Frontend build command
+  publish = "acceleott-mueller/dist"        # Built frontend output folder
+  functions = "../acceleott-backend/netlify/functions"  # Serverless backend
 
-# Redirect API requests to backend function
+# 🔁 Redirect API calls to Netlify Functions
 [[redirects]]
   from = "/api/*"
-  to = "../acceleott-backend/netlify/functions"
+  to = "/.netlify/functions/server"
   status = 200
 
-# React SPA fallback
+# ⚡ Redirect all other routes to React Router
 [[redirects]]
   from = "/*"
   to = "/index.html"
