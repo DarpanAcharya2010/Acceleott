@@ -4,10 +4,10 @@
 # ======================================
 
 [build]
-  base = "acceleott-mueller"         # Go into frontend folder
-  command = "npm install && npm run build"
-  publish = "dist"                   # ✅ publish relative to base
-  functions = "../netlify/functions"
+  base = "."
+  command = "npm run build"
+  publish = "acceleott-mueller/dist"
+  functions = "netlify/functions"
 
 [build.environment]
   NODE_VERSION = "20"
