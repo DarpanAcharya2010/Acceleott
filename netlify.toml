@@ -1,16 +1,23 @@
 # ======================================
-# ✅ Netlify Config (Frontend + Serverless Backend)
-# For React (Vite) + Functions Setup
+# ✅ Netlify Config (React + Backend)
 # ======================================
 
 [build]
-  base = "acceleott-mueller"           # Run build from frontend folder
+  base = "acceleott-mueller"
   command = "npm run build"
-  publish = "dist"   # ✅ frontend build output
-  functions = "acceleott-backend/netlify/functions"  # ✅ backend functions
+  publish = "dist"
+  functions = "../acceleott-backend/netlify/functions"
 
 # ======================================
-# ✅ Redirects (Frontend routing)
+# ✅ API Redirect (Backend)
+# ======================================
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/server/:splat"
+  status = 200
+
+# ======================================
+# ✅ React Router Fallback
 # ======================================
 [[redirects]]
   from = "/*"
@@ -18,9 +25,10 @@
   status = 200
 
 # ======================================
-# ✅ Environment Variables
+# ✅ Environment
 # ======================================
 [build.environment]
   NODE_VERSION = "18"
   NPM_VERSION = "10"
+
   SECRETS_SCAN_OMIT_KEYS = "ADMIN_EMAIL,EMAIL_USER,EMAIL_PASS,JWT_SECRET,NODE_ENV"
