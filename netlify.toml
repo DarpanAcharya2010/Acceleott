@@ -11,7 +11,7 @@
 # Redirect API requests to backend function
 [[redirects]]
   from = "/api/*"
-  to = "/.netlify/functions/server"
+  to = "../acceleott-backend/netlify/functions"
   status = 200
 
 # React SPA fallback
