@@ -26,26 +26,26 @@ import demoRoutes from "../../acceleott-backend/routes/demoRoutes.js";
 // 1. Setup and Environment
 // ================================
 dotenv.config();
+
 const NODE_ENV = process.env.NODE_ENV || "development";
 const isProduction = NODE_ENV === "production";
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 const mongoURI = process.env.MONGODB_URI;
 
+// ✅ Fix 1: Don’t crash function on missing Mongo URI — handle gracefully
 if (!mongoURI) {
-  console.error("❌ MONGODB_URI missing. Add it in Netlify Environment Variables.");
-  process.exit(1);
+  console.error("❌ Missing MONGODB_URI. Add it in Netlify Environment Variables.");
+} else {
+  // ================================
+  // 2. MongoDB Connection
+  // ================================
+  mongoose
+    .connect(mongoURI)
+    .then(() => console.log("✅ MongoDB connected successfully"))
+    .catch((err) => {
+      console.error("❌ MongoDB connection failed:", err.message);
+    });
 }
-
-// ================================
-// 2. MongoDB Connection
-// ================================
-mongoose
-  .connect(mongoURI)
-  .then(() => console.log("✅ MongoDB connected successfully"))
-  .catch((err) => {
-    console.error("❌ MongoDB connection failed:", err.message);
-    process.exit(1);
-  });
 
 // ================================
 // 3. Express App Setup
@@ -66,6 +66,10 @@ app.use(
 // ================================
 // 4. API Routes
 // ================================
+app.get("/api", (req, res) => {
+  res.json({ message: "✅ Acceleott API Root Working" });
+});
+
 app.use("/api/auth", authRoutes);
 app.use("/api/demo", demoRoutes);
 
@@ -111,10 +115,10 @@ app.use((err, req, res, next) => {
 // ================================
 export const handler = serverless(app);
 
-// ✅ Local development mode
+// ✅ Local development mode (when running `netlify dev`)
 if (NODE_ENV === "development") {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
-    console.log(`🚀 API running locally on http://localhost:${PORT}`);
+    console.log(`🚀 Local API running on http://localhost:${PORT}`);
   });
 }

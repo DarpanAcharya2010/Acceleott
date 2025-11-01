@@ -7,11 +7,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default defineConfig(({ mode }) => {
-  // ✅ Load environment variables from `.env` files
+  // ✅ Load environment variables
   const env = loadEnv(mode, process.cwd(), "");
 
   return {
-    // ✅ Ensure assets and routes resolve correctly on Netlify
+    // ✅ Base path (keep "/" if deploying on Netlify or Vercel)
     base: "/",
 
     plugins: [react()],
@@ -23,10 +23,12 @@ export default defineConfig(({ mode }) => {
     },
 
     server: {
+      host: true,            // Allow external connections
+      port: 5173,            // ✅ Standard Vite dev port
+      strictPort: false,     // ✅ Avoid port conflict automatically
       open: true,
       proxy: {
         "/api": {
-          // ✅ Do not hardcode localhost or PORT
           target: env.VITE_BACKEND_URL || "http://localhost:5000",
           changeOrigin: true,
           secure: false,
@@ -51,6 +53,7 @@ export default defineConfig(({ mode }) => {
     },
 
     preview: {
+      host: true,
       port: 4173,
       open: true,
     },

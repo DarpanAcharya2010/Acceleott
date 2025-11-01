@@ -1,13 +1,13 @@
 # ======================================
-# ✅ Netlify Config (Frontend + Serverless Backend)
-# For React (Vite) + Functions Setup
+# ✅ Netlify Config (React + Serverless Backend)
+# Works for both local dev and production
 # ======================================
 
 [build]
-  base = "acceleott-mueller"          # 👈 ensures npm install runs inside this folder
+  base = "acceleott-mueller"           # Run build from frontend folder
   command = "npm run build"
-  publish = "dist"                    # 👈 relative to the base folder
-  functions = "../netlify/functions"  # 👈 go up one level to reach functions folder
+  publish = "acceleott-mueller/dist"   # ✅ frontend build output
+  functions = "netlify/functions"      # ✅ correct relative path (no ../)
 
 [build.environment]
   NODE_VERSION = "20"
@@ -16,13 +16,16 @@
   NPM_FLAGS = "--legacy-peer-deps"
   PUBLIC_API_BASE = "/.netlify/functions/server"
 
-  # ✅ Safe secret scan config
-  SECRETS_SCAN_ENABLED = "true"
-  SECRETS_SCAN_OMIT_KEYS = "NODE_ENV,PORT,ADMIN_EMAIL"
-  SECRETS_SCAN_OMIT_PATHS = "node_modules/**,dist/**"
+# ======================================
+# ✅ API Redirect (for backend)
+# ======================================
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/server/:splat"
+  status = 200
 
 # ======================================
-# ✅ SPA Redirects
+# ✅ React Router (SPA) Redirect
 # ======================================
 [[redirects]]
   from = "/*"
@@ -46,5 +49,6 @@
 # ======================================
 [dev]
   command = "npm run dev"
-  port = 5173
-  publish = "dist"
+  port = 8888
+  publish = "acceleott-mueller/dist"
+  functions = "netlify/functions"      # ✅ no ../

@@ -2,26 +2,31 @@
 import axios from "axios";
 
 /* ------------------------------------------
-   🌐 Safe Base URL (Works for Local + Netlify + Vercel)
+   🌐 Safe Base URL (Local + Netlify + Vercel)
 ------------------------------------------ */
-const baseURL =
+const fixedBaseURL =
   import.meta.env.VITE_BACKEND_URL?.trim() ||
   import.meta.env.VITE_API_BASE_URL?.trim() ||
   (import.meta.env.DEV
-    ? "http://localhost:5000/api" // 🧑‍💻 Local development
-    : "/.netlify/functions/server/api"); // 🌍 Production (Netlify serverless function)
+    ? "http://localhost:5000/api" // 🧑‍💻 Local backend
+    : "/.netlify/functions/server/api"); // ✅ Production serverless backend path
+
+// Explanation:
+// - During local dev: backend runs on http://localhost:5000/api
+// - On Netlify: all "/api/*" calls redirect to "/.netlify/functions/server/api/*"
+//   (handled by [[redirects]] in netlify.toml)
 
 /* ------------------------------------------
    Create Axios Instance
 ------------------------------------------ */
 const axiosInstance = axios.create({
-  baseURL,
+  baseURL: fixedBaseURL,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
   },
-  timeout: 10000,
+  timeout: 15000, // more tolerance for cold starts
 });
 
 /* ------------------------------------------
@@ -53,12 +58,12 @@ axiosInstance.interceptors.response.use(
 
       if (status >= 500) {
         console.error(
-          "Server Error:",
-          error.response.data?.message || "Unexpected error occurred."
+          "🚨 Server Error:",
+          error.response.data?.message || "Unexpected backend issue."
         );
       }
     } else if (error.request) {
-      console.error("No response from server. Check network or CORS.");
+      console.error("⚠️ No response from server. Check network or CORS.");
     } else {
       console.error("Axios configuration error:", error.message);
     }
