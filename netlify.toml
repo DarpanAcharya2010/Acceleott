@@ -4,15 +4,13 @@
 # ======================================
 
 [build]
-  base = "acceleott-mueller"           # Run build from frontend folder
+  base = "acceleott-mueller"         # Go into frontend folder
   command = "npm run build"
-  publish = "acceleott-mueller/dist"   # ✅ frontend build output
-  functions = "netlify/functions"      # ✅ correct relative path (no ../)
+  publish = "dist"                   # ✅ publish relative to base
+  functions = "../netlify/functions"
 
 [build.environment]
   NODE_VERSION = "20"
-  NODE_ENV = "production"
-  NPM_CONFIG_PRODUCTION = "false"
   NPM_FLAGS = "--legacy-peer-deps"
   PUBLIC_API_BASE = "/.netlify/functions/server"
 
@@ -50,5 +48,5 @@
 [dev]
   command = "npm run dev"
   port = 8888
-  publish = "acceleott-mueller/dist"
-  functions = "netlify/functions"      # ✅ no ../
+  publish = "dist"
+  functions = "netlify/functions"

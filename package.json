@@ -5,7 +5,7 @@
   "description": "Unified deployment for Acceleott frontend (React) and backend (Express + MongoDB).",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "cd acceleott-mueller && npm run build",
     "preview": "vite preview",
     "start": "node acceleott-backend/server.js",
     "backend": "nodemon acceleott-backend/server.js"
