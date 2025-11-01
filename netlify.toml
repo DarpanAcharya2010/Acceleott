@@ -1,61 +1,26 @@
 # ======================================
-# ✅ Netlify Config for Acceleott (Frontend + Serverless Backend)
-# Root: acceleott-webb
+# ✅ Netlify Config (Frontend + Serverless Backend)
+# For React (Vite) + Functions Setup
 # ======================================
 
 [build]
-  base = "acceleott-mueller"                     # Frontend base directory
-  command = "npm install && npm run build"
-  publish = "dist"                               # ✅ Frontend build output folder
-  functions = "../acceleott-backend/netlify/functions"  # ✅ Serverless backend path
+  base = "acceleott-mueller"           # Run build from frontend folder
+  command = "npm run build"
+  publish = "acceleott-mueller/dist"   # ✅ frontend build output
+  functions = "acceleott-backend/netlify/functions"  # ✅ backend functions
 
 # ======================================
-# ✅ Environment Variables
-# (Set these in Netlify Dashboard → Site Settings → Environment Variables)
+# ✅ Redirects (Frontend routing)
 # ======================================
-# MONGODB_URI      = your MongoDB Atlas URI
-# JWT_SECRET       = your JWT secret key
-# EMAIL_USER       = your Gmail/SMTP user
-# EMAIL_PASS       = your Gmail/SMTP app password
-# EMAIL_FROM       = optional custom sender
-# FRONTEND_URL     = https://acceleott.netlify.app
-# NODE_ENV         = production
-
-# ======================================
-# ✅ Redirects
-# /api/* routes → backend (serverless)
-# Everything else → frontend (React)
-# ======================================
-
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/server"
-  status = 200
-
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
 # ======================================
-# ✅ Node.js Version
-# (Ensure consistency between Netlify + local dev)
+# ✅ Environment Variables
 # ======================================
 [build.environment]
   NODE_VERSION = "18"
-
-# ======================================
-# ✅ Functions Configuration
-# ======================================
-[functions]
-  node_bundler = "esbuild"
-  included_files = ["acceleott-backend/**"]
-
-# ======================================
-# ✅ Security (Optional)
-# ======================================
-# These keys will be ignored by Netlify’s secret scanner.
-# Use only variable names (not values!)
-# ======================================
-[build.environment]
+  NPM_VERSION = "10"
   SECRETS_SCAN_OMIT_KEYS = "ADMIN_EMAIL,EMAIL_USER,EMAIL_PASS,JWT_SECRET"
