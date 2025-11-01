@@ -4,10 +4,10 @@
 # ======================================
 
 [build]
-  base = "acceleott-mueller"         # Go into frontend folder
+  base = "acceleott-mueller"             # Go into frontend folder
   command = "npm install && npm run build"
-  publish = "dist"                   # ✅ publish relative to base
-  functions = "../netlify/functions"
+  publish = "acceleott-mueller/dist"     # ✅ Explicit path to dist
+  functions = "netlify/functions"        # ✅ Correct relative path from root
 
 [build.environment]
   NODE_VERSION = "20"
@@ -48,5 +48,5 @@
 [dev]
   command = "npm run dev"
   port = 8888
-  publish = "dist"
+  publish = "acceleott-mueller/dist"     # ✅ Match build output
   functions = "netlify/functions"
