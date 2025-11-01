@@ -4,7 +4,7 @@
 
 [build]
   base = "acceleott-mueller"              # Frontend folder
-  command = "npm run build"
+  command = "npm vite build"
   publish = "acceleott-mueller/dist"      # ✅ Correct publish folder
   functions = "../acceleott-backend/netlify-functions"  # ✅ Go up one level
 
