@@ -1,11 +1,11 @@
 /**
  * ============================================================
- *  Acceleott Backend (Unified Local + Netlify Deployment)
+ *  Acceleott Serverless Backend (Netlify Function Entry)
  * ============================================================
- * ✅ Works locally (localhost:5000) and on Netlify Functions
+ * ✅ Wraps Express app for Netlify
  * ✅ Connects to MongoDB Atlas
- * ✅ Handles Auth + Demo routes + Email test
- * ✅ Optional: serves built React frontend in production
+ * ✅ Handles Auth + Demo routes
+ * ✅ Works in both local + deployed environments
  * ============================================================
  */
 
@@ -14,34 +14,35 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import path from "path";
-import { fileURLToPath } from "url";
 import nodemailer from "nodemailer";
 import serverless from "serverless-http";
+import path from "path";
+import { fileURLToPath } from "url";
 
 // --- Import Routes ---
-import authRoutes from "./routes/auth.js";
-import demoRoutes from "./routes/demoRoutes.js";
+import authRoutes from "../../routes/auth.js";
+import demoRoutes from "../../routes/demoRoutes.js";
 
 // ================================
-// 1. Environment Setup
+// 1️⃣ Environment + Setup
 // ================================
 dotenv.config();
-const NODE_ENV = process.env.NODE_ENV || "development";
+const NODE_ENV = process.env.NODE_ENV || "production";
 const isProduction = NODE_ENV === "production";
+
 const app = express();
 
-// --- Path setup (for frontend serving)
+// --- Path utilities (optional)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const FE_DIST_PATH = path.join(__dirname, "..", "acceleott-mueller", "dist");
 
 // ================================
-// 2. MongoDB Connection
+// 2️⃣ MongoDB Connection
 // ================================
 const mongoURI = process.env.MONGODB_URI;
+
 if (!mongoURI) {
-  console.error("❌ Missing MONGODB_URI in environment variables.");
+  console.error("❌ MONGODB_URI missing — please set it in Netlify environment variables.");
   process.exit(1);
 }
 
@@ -58,13 +59,11 @@ mongoose
   });
 
 // ================================
-// 3. Middleware
+// 3️⃣ Middleware
 // ================================
 const FRONTEND_URL =
   process.env.FRONTEND_URL ||
-  (isProduction
-    ? "https://acceleott.netlify.app"
-    : "http://localhost:5173");
+  (isProduction ? "https://acceleott.netlify.app" : "http://localhost:5173");
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
@@ -79,12 +78,12 @@ app.use(
 );
 
 // ================================
-// 4. API Routes
+// 4️⃣ Routes
 // ================================
 app.use("/api/auth", authRoutes);
 app.use("/api/demo", demoRoutes);
 
-// --- Test Email Route ---
+// ✅ Test email route
 app.post("/api/test-email", async (req, res) => {
   const { to, subject, text } = req.body;
   if (!to || !subject || !text)
@@ -114,19 +113,7 @@ app.post("/api/test-email", async (req, res) => {
 });
 
 // ================================
-// 5. Serve Frontend (Production Only)
-// ================================
-if (isProduction) {
-  app.use(express.static(FE_DIST_PATH));
-
-  // Serve React build for all unknown routes
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(FE_DIST_PATH, "index.html"));
-  });
-}
-
-// ================================
-// 6. Error Handler
+// 5️⃣ Error Handler
 // ================================
 app.use((err, req, res, next) => {
   console.error("🚨 Server Error:", err.stack);
@@ -134,17 +121,19 @@ app.use((err, req, res, next) => {
 });
 
 // ================================
-// 7. Deployment Exports
+// 6️⃣ Export for Netlify Function
 // ================================
-
-// ✅ Netlify handler (functions)
 export const handler = serverless(app);
 
-// ✅ Local server
+// ================================
+// 7️⃣ Local Development Support
+// ================================
 if (NODE_ENV === "development") {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`🌐 Allowed frontend origin: ${FRONTEND_URL}`);
+    console.log(`🚀 Local API running at http://localhost:${PORT}`);
+    console.log(`🌐 Allowed origin: ${FRONTEND_URL}`);
   });
 }
+
+export default app;
