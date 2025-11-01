@@ -5,7 +5,7 @@
 
 [build]
   base = "acceleott-mueller"         # Go into frontend folder
-  command = "npm run build"
+  command = "npm install && npm run build"
   publish = "dist"                   # ✅ publish relative to base
   functions = "../netlify/functions"
 
