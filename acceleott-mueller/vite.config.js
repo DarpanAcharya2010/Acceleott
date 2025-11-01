@@ -57,8 +57,10 @@ export default defineConfig(({ mode }) => {
       open: true,
     },
 
+    // ✅ Force Vite to rebuild deps every time (fixes lock issue)
     optimizeDeps: {
       include: ["react", "react-dom", "react-router-dom"],
+      force: true, // <--- add this line
     },
   };
 });
