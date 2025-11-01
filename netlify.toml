@@ -1,31 +1,52 @@
 # ======================================
-# ✅ Netlify Config (Frontend + Functions)
+# ✅ Netlify Config (React + Serverless Backend)
+# Works for both local dev and production
 # ======================================
 
 [build]
-  base = "acceleott-mueller"
-  command = "npm run build"
-  publish = "acceleott-mueller/dist"
+  base = "acceleott-mueller"         # Go into frontend folder
+  command = "npm install && npm run build"
+  publish = "dist"                   # ✅ publish relative to base
   functions = "../netlify/functions"
 
-[functions]
-  node_bundler = "esbuild"
+[build.environment]
+  NODE_VERSION = "20"
+  NPM_FLAGS = "--legacy-peer-deps"
+  PUBLIC_API_BASE = "/.netlify/functions/server"
 
+# ======================================
+# ✅ API Redirect (for backend)
+# ======================================
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/server/:splat"
   status = 200
 
+# ======================================
+# ✅ React Router (SPA) Redirect
+# ======================================
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
+# ======================================
+# ✅ Security Headers
+# ======================================
 [[headers]]
   for = "/*"
   [headers.values]
-  Cache-Control = "public, max-age=0, must-revalidate"
-  X-Frame-Options = "DENY"
-  X-Content-Type-Options = "nosniff"
-  X-XSS-Protection = "1; mode=block"
-  Referrer-Policy = "strict-origin-when-cross-origin"
+    Cache-Control = "public, max-age=0, must-revalidate"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+
+# ======================================
+# ✅ Local Development
+# ======================================
+[dev]
+  command = "npm run dev"
+  port = 8888
+  publish = "dist"
+  functions = "netlify/functions"
