@@ -6,7 +6,6 @@ import axios from "axios";
 ------------------------------------------ */
 const fixedBaseURL =
   import.meta.env.VITE_BACKEND_URL?.trim() ||
-  import.meta.env.VITE_API_BASE_URL?.trim() ||
   (import.meta.env.DEV
     ? "http://localhost:5000/api" // 🧑‍💻 Local backend
     : "/.netlify/functions/server/api"); // ✅ Production serverless backend path

@@ -1,10 +1,10 @@
 /**
  * ============================================================
- *  Acceleott Fullstack Server (Backend for Netlify)
+ *  Acceleott Backend (Unified Local + Netlify Deployment)
  * ============================================================
- * ✅ Works perfectly with Netlify Functions (Express adapter)
- * ✅ Handles MongoDB, Nodemailer, and API routes
- * ✅ Ready for Netlify deployment
+ * ✅ Connects to MongoDB Atlas (Cloud)
+ * ✅ Works with local dev or Netlify functions
+ * ✅ Keeps all routes, mailer, and integrations intact
  * ============================================================
  */
 
@@ -16,6 +16,7 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import nodemailer from "nodemailer";
+import serverless from "serverless-http";
 
 // --- Import Routes ---
 import authRoutes from "./routes/auth.js";
@@ -28,33 +29,41 @@ dotenv.config();
 const NODE_ENV = process.env.NODE_ENV || "development";
 const isProduction = NODE_ENV === "production";
 
-// Path setup for static assets (if you want to serve frontend later)
+const app = express();
+
+// --- Path setup (used for serving frontend later, optional)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const FE_DIST_PATH = path.join(__dirname, "..", "..", "dist");
 
 // ================================
-// 2. MongoDB Connection
+// 2. MongoDB (Atlas) Connection
 // ================================
 const mongoURI = process.env.MONGODB_URI;
+
 if (!mongoURI) {
-  console.error("❌ MONGODB_URI is missing. Add it in Netlify Environment Variables.");
+  console.error("❌ MONGODB_URI is missing. Please add it in your .env or Netlify Environment Variables.");
   process.exit(1);
 }
 
 mongoose
-  .connect(mongoURI)
-  .then(() => console.log("✅ MongoDB connected successfully"))
+  .connect(mongoURI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 10000,
+  })
+  .then(() => console.log("✅ Connected to MongoDB Atlas successfully"))
   .catch((err) => {
     console.error("❌ MongoDB connection failed:", err.message);
     process.exit(1);
   });
 
 // ================================
-// 3. Express App Setup & Middleware
+// 3. Middleware Setup
 // ================================
-const app = express();
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+const FRONTEND_URL =
+  process.env.FRONTEND_URL ||
+  (isProduction ? "https://acceleott.netlify.app" : "http://localhost:5173");
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
@@ -69,12 +78,12 @@ app.use(
 );
 
 // ================================
-// 4. Backend API Routes
+// 4. API Routes
 // ================================
 app.use("/api/auth", authRoutes);
 app.use("/api/demo", demoRoutes);
 
-// --- Test Email Route ---
+// ✅ Test email route
 app.post("/api/test-email", async (req, res) => {
   const { to, subject, text } = req.body;
   if (!to || !subject || !text)
@@ -104,25 +113,25 @@ app.post("/api/test-email", async (req, res) => {
 });
 
 // ================================
-// 5. Error Handling
+// 5. Error Handling Middleware
 // ================================
 app.use((err, req, res, next) => {
-  console.error("Server Error:", err.stack);
+  console.error("🚨 Server Error:", err.stack);
   res.status(500).json({ message: "Internal Server Error." });
 });
 
 // ================================
-// 6. Export for Netlify Function
+// 6. Deployment Exports
 // ================================
 
-// ✅ Export as handler for Netlify
-import serverless from "serverless-http";
+// ✅ Export as Netlify handler
 export const handler = serverless(app);
 
-// ✅ For local testing (optional)
-const PORT = process.env.PORT || 5000;
+// ✅ Local development mode
 if (NODE_ENV === "development") {
+  const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
-    console.log(`🚀 Server running locally at http://localhost:${PORT}`);
+    console.log(`🚀 Local server running at http://localhost:${PORT}`);
+    console.log(`🌐 Frontend allowed origin: ${FRONTEND_URL}`);
   });
 }

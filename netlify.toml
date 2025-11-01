@@ -1,13 +1,13 @@
 # ======================================
-# ✅ Netlify Config (React + Serverless Backend)
+# ✅ Netlify Config (React + Express Backend)
 # Works for both local dev and production
 # ======================================
 
 [build]
-  base = "acceleott-mueller"             # Go into frontend folder
+  base = "acceleott-mueller"                  # Go into frontend folder
   command = "npm install && npm run build"
-  publish = "acceleott-mueller/dist"     # ✅ Explicit path to dist
-  functions = "netlify/functions"        # ✅ Correct relative path from root
+  publish = "acceleott-mueller/dist"          # ✅ Frontend build output
+  functions = "../acceleott-backend"          # ✅ Points to backend folder (relative to frontend base)
 
 [build.environment]
   NODE_VERSION = "20"
@@ -15,7 +15,7 @@
   PUBLIC_API_BASE = "/.netlify/functions/server"
 
 # ======================================
-# ✅ API Redirect (for backend)
+# ✅ API Redirect (Serverless Backend)
 # ======================================
 [[redirects]]
   from = "/api/*"
@@ -23,7 +23,7 @@
   status = 200
 
 # ======================================
-# ✅ React Router (SPA) Redirect
+# ✅ React Router SPA Redirect
 # ======================================
 [[redirects]]
   from = "/*"
@@ -43,10 +43,10 @@
     X-XSS-Protection = "1; mode=block"
 
 # ======================================
-# ✅ Local Development
+# ✅ Local Development Settings
 # ======================================
 [dev]
   command = "npm run dev"
   port = 8888
-  publish = "acceleott-mueller/dist"     # ✅ Match build output
-  functions = "netlify/functions"
+  publish = "acceleott-mueller/dist"
+  functions = "../acceleott-backend"
