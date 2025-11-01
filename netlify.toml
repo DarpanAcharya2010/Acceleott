@@ -1,21 +1,44 @@
 # ======================================
-# ✅ Unified Netlify Config (Frontend + Backend)
+# ✅ Netlify Config for Acceleott (Frontend + Serverless Backend)
 # ======================================
 
 [build]
-  base = "acceleott-mueller"                # Run build from frontend folder
-  command = "npm run build"                 # Frontend build command
-  publish = "acceleott-mueller/dist"        # Built frontend output folder
-  functions = "../acceleott-backend/netlify/functions"  # Serverless backend
+  base = "acceleott-mueller"           # Frontend build folder
+  command = "npm install && npm run build"
+  publish = "acceleott-mueller/dist"   # Built React app
+  functions = "acceleott-backend/netlify/functions"  # Backend functions folder
 
-# 🔁 Redirect API calls to Netlify Functions
+# ======================================
+# ✅ Environment Variables (managed in Netlify Dashboard)
+# ======================================
+# Add these in Netlify → Site Settings → Environment Variables
+# MONGODB_URI, JWT_SECRET, EMAIL_USER, EMAIL_PASS, FRONTEND_URL, etc.
+
+# ======================================
+# ✅ Redirects
+# - All /api/* routes go to backend (serverless)
+# - Everything else → index.html (for React Router)
+# ======================================
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/server"
   status = 200
 
-# ⚡ Redirect all other routes to React Router
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+
+# ======================================
+# ✅ Node.js Version
+# (matches your backend package.json engines)
+# ======================================
+[build.environment]
+  NODE_VERSION = "18"
+
+# ======================================
+# ✅ Caching
+# ======================================
+[functions]
+  node_bundler = "esbuild"
+  included_files = ["acceleott-backend/**"]
