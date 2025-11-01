@@ -20,8 +20,10 @@ import nodemailer from "nodemailer";
 import serverless from "serverless-http";
 
 // --- Import Routes ---
-import authRoutes from "./routes/auth.js";
-import demoRoutes from "./routes/demoRoutes.js";
+import authRoutes from "../../routes/auth.js";
+import demoRoutes from "../../routes/demoRoutes.js";
+import contactRoutes from "../../routes/contact.js";
+
 
 // ================================
 // 1. Environment Setup
@@ -83,7 +85,7 @@ app.use(
 // ================================
 app.use("/api/auth", authRoutes);
 app.use("/api/demo", demoRoutes);
-
+app.use("/api/contact", contactRoutes )
 // --- Test Email Route ---
 app.post("/api/test-email", async (req, res) => {
   const { to, subject, text } = req.body;
@@ -136,6 +138,7 @@ app.use((err, req, res, next) => {
 // ================================
 // 7. Deployment Exports
 // ================================
+console.log("🚀 Serverless function initialized successfully.");
 
 // ✅ Netlify handler (functions)
 export const handler = serverless(app);
