@@ -47,9 +47,11 @@
 
     <!-- ✅ Security & PWA Meta -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:;" />
+    <meta
+  http-equiv="Content-Security-Policy"
+  content="default-src 'self' http: https: data: blob:; connect-src 'self' http://localhost:5000 https://* ws: wss:; img-src 'self' data: blob: https:; script-src 'self' 'unsafe-inline' http: https:; style-src 'self' 'unsafe-inline' http: https:;"/>
 
-    <script type="module" crossorigin src="/assets/index-Ch47eN0S.js"></script>
+    <script type="module" crossorigin src="/assets/index-DI0G50hN.js"></script>
     <link rel="modulepreload" crossorigin href="/assets/react-KEM1KK5Q.js">
     <link rel="modulepreload" crossorigin href="/assets/vendor-CSYuk0ps.js">
     <link rel="stylesheet" crossorigin href="/assets/index-DIm143F6.css">
