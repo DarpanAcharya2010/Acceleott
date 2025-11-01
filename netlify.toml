@@ -32,3 +32,9 @@
   NPM_VERSION = "10"
 
   SECRETS_SCAN_OMIT_KEYS = "ADMIN_EMAIL,EMAIL_USER,EMAIL_PASS,JWT_SECRET,NODE_ENV"
+# ======================================
+# ✅ Ensure backend dependencies installed
+# ======================================
+[functions]
+  node_bundler = "esbuild"
+  included_files = ["acceleott-backend/**"]
