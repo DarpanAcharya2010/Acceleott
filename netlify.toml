@@ -6,7 +6,7 @@
 [build]
   base = "acceleott-mueller"           # Run build from frontend folder
   command = "npm run build"
-  publish = "acceleott-mueller/dist"   # ✅ frontend build output
+  publish = "dist"   # ✅ frontend build output
   functions = "acceleott-backend/netlify/functions"  # ✅ backend functions
 
 # ======================================
