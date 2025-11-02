@@ -13,8 +13,8 @@ import axios from "axios";
 const fixedBaseURL =
   import.meta.env.VITE_BACKEND_URL?.trim() ||
   (import.meta.env.DEV
-    ? "http://localhost:8888/.netlify/functions/server/api" // ✅ Local Netlify dev
-    : "/.netlify/functions/server/api"); // ✅ Production (Netlify deploy)
+    ? "http://localhost:8888/.netlify/functions/server" // ✅ Local Netlify dev
+    : "/.netlify/functions/server"); // ✅ Production (Netlify deploy)
 
 /* ============================================================
    ⚙️ Axios Instance
