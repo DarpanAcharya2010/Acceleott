@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
 
   return {
-    base: "/",
+    base: "/", // ✅ Required for GitHub Pages + Netlify to serve correctly
     plugins: [react()],
 
     resolve: {
@@ -23,12 +23,38 @@ export default defineConfig(({ mode }) => {
       host: true,
       port: 5173,
       open: true,
+
+      // ✅ Local dev proxy → calls backend function in Netlify Dev
       proxy: {
         "/api": {
           target:
             mode === "development"
-              ? "http://localhost:8888/.netlify/functions/api"
-              : "/.netlify/functions/api",
+              ? "http://localhost:8888/.netlify/functions/server"
+              : "/.netlify/functions/server",
+          changeOrigin: true,
+          secure: false,
+        },
+        "/demo": {
+          target:
+            mode === "development"
+              ? "http://localhost:8888/.netlify/functions/server"
+              : "/.netlify/functions/server",
+          changeOrigin: true,
+          secure: false,
+        },
+        "/auth": {
+          target:
+            mode === "development"
+              ? "http://localhost:8888/.netlify/functions/server"
+              : "/.netlify/functions/server",
+          changeOrigin: true,
+          secure: false,
+        },
+        "/contact": {
+          target:
+            mode === "development"
+              ? "http://localhost:8888/.netlify/functions/server"
+              : "/.netlify/functions/server",
           changeOrigin: true,
           secure: false,
         },
@@ -57,10 +83,9 @@ export default defineConfig(({ mode }) => {
       open: true,
     },
 
-    // ✅ Force Vite to rebuild deps every time (fixes lock issue)
     optimizeDeps: {
       include: ["react", "react-dom", "react-router-dom"],
-      force: true, // <--- add this line
+      force: true,
     },
   };
 });

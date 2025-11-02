@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 /**
  * 🧠 Demo Request Schema
  * Stores information submitted through the “Book Demo” form.
- * Includes full validation, indexing, and optimized schema settings.
+ * Includes validation, indexing, and performance optimizations.
  */
 const DemoRequestSchema = new mongoose.Schema(
   {
@@ -25,8 +25,11 @@ const DemoRequestSchema = new mongoose.Schema(
     contact: {
       type: String,
       required: [true, "Contact number is required."],
-      trim: true,
-      match: [/^[0-9]{10}$/, "Invalid contact number (must be 10 digits)."],
+      validate: {
+        validator: (v) => /^\+?\d{10,15}$/.test(v), // ✅ Supports +91, etc.
+        message:
+          "Invalid contact number. Must be 10–15 digits (optionally starting with +).",
+      },
     },
     designation: {
       type: String,
@@ -36,21 +39,27 @@ const DemoRequestSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true, // Adds createdAt & updatedAt
+    timestamps: true, // ✅ Adds createdAt & updatedAt
     collection: "demoRequests",
-    versionKey: false, // Removes __v field
+    versionKey: false, // ✅ Removes __v field
   }
 );
 
-// ✅ Optional: Compound index for search optimization
+/* ==========================================================
+   ⚡ Indexes & Virtuals
+   ========================================================== */
+
+// ✅ Optimize frequent lookups
 DemoRequestSchema.index({ email: 1, contact: 1 });
 
-// ✅ Optional: Virtual field for formatted date (useful in dashboards)
+// ✅ Virtual for formatted createdAt (for dashboards/logs)
 DemoRequestSchema.virtual("requestedOn").get(function () {
-  return this.createdAt.toLocaleString();
+  return this.createdAt ? this.createdAt.toLocaleString() : "N/A";
 });
 
-// ✅ Prevent recompiling model in dev/hot-reload environments
+/* ==========================================================
+   🧩 Prevent model overwrite (for hot reload / Netlify cold starts)
+   ========================================================== */
 const DemoRequest =
   mongoose.models.DemoRequest ||
   mongoose.model("DemoRequest", DemoRequestSchema);

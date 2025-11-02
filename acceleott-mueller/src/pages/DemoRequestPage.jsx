@@ -13,20 +13,28 @@ export default function DemoRequestPage() {
   const [status, setStatus] = useState({ success: null, message: "" });
   const [loading, setLoading] = useState(false);
 
-  // ✅ Production-Ready Fix: Determine API Base URL for Vercel/Local
+  /* -----------------------------------------------------
+     🌐 Dynamic API Base URL
+  ----------------------------------------------------- */
   const API_BASE =
     import.meta.env.VITE_API_BASE_URL?.trim() ||
-    (import.meta.env.DEV ? "http://localhost:5000/api" : "/api");
-  
-  const API_URL = `${API_BASE}/demo`; // Dynamically construct the full URL
+    (import.meta.env.DEV
+      ? "http://localhost:8888/.netlify/functions/server/api" // ✅ Local (netlify dev)
+      : "/.netlify/functions/server/api"); // ✅ Netlify production backend
 
-  // ✅ Handle input changes (controlled form)
+  const API_URL = `${API_BASE}/demo`; // → final endpoint
+
+  /* -----------------------------------------------------
+     ✏️ Handle input changes
+  ----------------------------------------------------- */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // ✅ Validate before submit
+  /* -----------------------------------------------------
+     ✅ Validate form
+  ----------------------------------------------------- */
   const validateForm = () => {
     const { name, email, contact } = formData;
     if (!name.trim() || !email.trim() || !contact.trim()) {
@@ -36,6 +44,7 @@ export default function DemoRequestPage() {
       });
       return false;
     }
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^[0-9+\-()\s]{7,15}$/;
 
@@ -58,7 +67,9 @@ export default function DemoRequestPage() {
     return true;
   };
 
-  // ✅ Handle form submission
+  /* -----------------------------------------------------
+     🚀 Handle form submission
+  ----------------------------------------------------- */
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -67,19 +78,16 @@ export default function DemoRequestPage() {
     setStatus({ success: null, message: "Submitting your request..." });
 
     try {
-      // ✅ Using the dynamic API_URL
-      const res = await axios.post(API_URL, formData, {
-        headers: { "Content-Type": "application/json" },
-        timeout: 10000, // 10s timeout
-      });
+      // ✅ Use dynamic API_URL (not hardcoded)
+      const res = await axios.post(API_URL, formData);
 
       setStatus({
         success: true,
-        message: res?.data?.message || "✅ Demo request submitted successfully!",
+        message:
+          res?.data?.message || "✅ Demo request submitted successfully!",
       });
 
-      // Reset form after success
-      setFormData({ name: "", email: "", contact: "", Designation: "" });
+      setFormData({ name: "", email: "", contact: "", designation: "" });
     } catch (err) {
       console.error("Demo request failed:", err);
       setStatus({
@@ -95,6 +103,9 @@ export default function DemoRequestPage() {
     }
   };
 
+  /* -----------------------------------------------------
+     💅 Render
+  ----------------------------------------------------- */
   return (
     <div className="demo-page">
       <h2>Request a Demo</h2>

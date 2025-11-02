@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import api from "@/api/axios"; // centralized API config
+import api from "@/api/axios"; // ✅ centralized Axios instance
 import "./getstarted.css";
 import { AuthContext } from "../context/AuthContext";
 
@@ -27,14 +27,22 @@ const GetStartedPage = () => {
   // --- Handle form submission ---
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Prevent double submit
     if (loading) return;
 
     setLoading(true);
     setStatus({ success: null, message: "Submitting..." });
 
     try {
+      /**
+       * 🧩 Fixed endpoint:
+       *   Old: api.post("/api/auth/register", formData)
+       *   New: api.post("/auth/register", formData)
+       *
+       * Because our axios baseURL already includes `/api`
+       * so the final resolved URL becomes:
+       *   - http://localhost:5000/api/auth/register  ✅ (local)
+       *   - /.netlify/functions/server/api/auth/register ✅ (production)
+       */
       const res = await api.post("/auth/register", formData);
 
       setStatus({
@@ -54,7 +62,7 @@ const GetStartedPage = () => {
         }, 1500);
       }
 
-      // Reset form fields
+      // Reset form
       setFormData({
         name: "",
         email: "",

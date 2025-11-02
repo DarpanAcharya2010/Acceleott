@@ -19,7 +19,16 @@ export default function LoginPage() {
     setMessage("🔐 Logging in...");
 
     try {
-      // ✅ Send credentials
+      /**
+       * 🧩 Important Fix:
+       *   - Old:  api.post("/api/auth/login", { email, password });
+       *   - Now:  api.post("/auth/login", { email, password });
+       *
+       * Because axios baseURL already ends with `/api`
+       * → So full path becomes:
+       *   http://localhost:5000/api/auth/login   ✅ (local)
+       *   /.netlify/functions/server/api/auth/login  ✅ (production)
+       */
       const res = await api.post("/auth/login", { email, password });
 
       // ✅ Save token securely in localStorage

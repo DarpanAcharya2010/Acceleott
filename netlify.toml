@@ -1,40 +1,61 @@
-# ======================================
-# ✅ Netlify Config (React + Backend)
-# ======================================
+# ============================================================
+# ✅ Netlify Config — React (Vite) + Express API (Serverless)
+# Root: acceleott-webb
+# Frontend: acceleott-mueller
+# Backend: netlify/functions/server.js
+# ============================================================
 
 [build]
   base = "acceleott-mueller"
   command = "npm run build"
-  publish = "dist"
-  functions = "../acceleott-backend/netlify/functions"
+  publish = "acceleott-mueller/dist"
+  functions = "netlify/functions"
 
-# ======================================
-# ✅ API Redirect (Backend)
-# ======================================
+# ============================================================
+# 🔀 Redirects — API routing to serverless backend
+# ============================================================
+
 [[redirects]]
   from = "/api/*"
-  to = "/.netlify/functions/server/:splat"
+  to = "/.netlify/functions/server/api/:splat"
   status = 200
+  force = true
 
-# ======================================
-# ✅ React Router Fallback
-# ======================================
+# ✅ Optional direct access for manual testing
+[[redirects]]
+  from = "/auth/*"
+  to = "/.netlify/functions/server/auth/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/contact/*"
+  to = "/.netlify/functions/server/contact/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/demo/*"
+  to = "/.netlify/functions/server/demo/:splat"
+  status = 200
+  force = true
+
+# ✅ React Router fallback
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
-# ======================================
-# ✅ Environment
-# ======================================
+# ============================================================
+# ⚙️ Functions Configuration
+# ============================================================
+
+[functions]
+  node_bundler = "esbuild"
+  external_node_modules = ["serverless-http", "mongoose", "express", "cors", "cookie-parser"]
+
 [build.environment]
   NODE_VERSION = "20"
   NPM_VERSION = "10"
-  SECRETS_SCAN_OMIT_KEYS = "ADMIN_EMAIL,EMAIL_USER,EMAIL_PASS,JWT_SECRET,NODE_ENV"
 
-# ======================================
-# ✅ Ensure backend dependencies installed
-# ======================================
-[functions]
-  node_bundler = "esbuild"
-  external_node_modules = ["serverless-http"]
+  SECRETS_SCAN_OMIT_KEYS = "ADMIN_EMAIL,EMAIL_USER,EMAIL_PASS,JWT_SECRET,MONGODB_URI,NODE_ENV"

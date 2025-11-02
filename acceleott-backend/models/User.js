@@ -2,8 +2,13 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
 /**
+ * ===========================================================
  * 👤 User Schema (Production-Ready)
- * Includes strong validation, hashed passwords, and verification support.
+ * - Strong validation
+ * - Password hashing
+ * - Token-based verification support
+ * - Optimized for Netlify/Serverless cold starts
+ * ===========================================================
  */
 const userSchema = new mongoose.Schema(
   {
@@ -29,7 +34,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Password is required."],
       minlength: [6, "Password must be at least 6 characters long."],
-      select: false, // ⛔ Prevent password from being returned in queries by default
+      select: false, // ⛔ Don’t expose password in queries
     },
 
     phone: {
@@ -57,7 +62,7 @@ const userSchema = new mongoose.Schema(
 
     verifyToken: {
       type: String,
-      select: false, // ⛔ Hide sensitive token info
+      select: false,
     },
 
     verifyTokenExpires: {
@@ -66,19 +71,20 @@ const userSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true, // Automatically adds createdAt & updatedAt
+    timestamps: true, // adds createdAt and updatedAt
     collection: "users",
     versionKey: false,
   }
 );
 
-//
-// 🔐 Password Hash Middleware (runs before saving user)
-//
+/* ===========================================================
+   🔐 Password Hash Middleware (Runs before saving)
+   Only hashes if password is new or modified
+=========================================================== */
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   try {
-    const salt = await bcrypt.genSalt(12); // Higher salt rounds for stronger security
+    const salt = await bcrypt.genSalt(12);
     this.password = await bcrypt.hash(this.password, salt);
     next();
   } catch (err) {
@@ -86,16 +92,17 @@ userSchema.pre("save", async function (next) {
   }
 });
 
-//
-// 🔑 Password Comparison Method
-//
+/* ===========================================================
+   🔑 Compare Entered Password vs Hashed
+=========================================================== */
 userSchema.methods.comparePassword = async function (candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
+  return bcrypt.compare(candidatePassword, this.password);
 };
 
-//
-// 🧠 Prevent re-compiling model in hot-reload (useful for dev mode)
-//
+/* ===========================================================
+   🧠 Avoid Model Overwrite in Serverless
+   (Netlify, Vercel, etc.)
+=========================================================== */
 const User = mongoose.models.User || mongoose.model("User", userSchema);
 
 export default User;

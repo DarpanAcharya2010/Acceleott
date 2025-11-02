@@ -1,36 +1,37 @@
-// ✅ /src/api/axios.js
 import axios from "axios";
 
-/* ------------------------------------------
-   🌐 Safe Base URL (Local + Netlify + Vercel)
------------------------------------------- */
+/* ============================================================
+   🌐 Dynamic Base URL — Local Dev + Netlify Production
+   ============================================================
+   🧠 Logic:
+   - Local (when using `netlify dev`): 
+       http://localhost:8888/.netlify/functions/server/api
+   - Production (Netlify deploy): 
+       /.netlify/functions/server/api
+   - Optional override: VITE_BACKEND_URL in .env
+============================================================ */
 const fixedBaseURL =
   import.meta.env.VITE_BACKEND_URL?.trim() ||
   (import.meta.env.DEV
-    ? "http://localhost:5000/api" // 🧑‍💻 Local backend
-    : "/.netlify/functions/server/api"); // ✅ Production serverless backend path
+    ? "http://localhost:8888/.netlify/functions/server/api" // ✅ Local Netlify dev
+    : "/.netlify/functions/server/api"); // ✅ Production (Netlify deploy)
 
-// Explanation:
-// - During local dev: backend runs on http://localhost:5000/api
-// - On Netlify: all "/api/*" calls redirect to "/.netlify/functions/server/api/*"
-//   (handled by [[redirects]] in netlify.toml)
-
-/* ------------------------------------------
-   Create Axios Instance
------------------------------------------- */
+/* ============================================================
+   ⚙️ Axios Instance
+============================================================ */
 const axiosInstance = axios.create({
   baseURL: fixedBaseURL,
-  withCredentials: true,
+  withCredentials: true, // for cookies / auth sessions
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
   },
-  timeout: 15000, // more tolerance for cold starts
+  timeout: 20000, // handles Netlify cold starts
 });
 
-/* ------------------------------------------
-   Request Interceptor
------------------------------------------- */
+/* ============================================================
+   🔑 Request Interceptor — Attach JWT if present
+============================================================ */
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -40,21 +41,23 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-/* ------------------------------------------
-   Response Interceptor
------------------------------------------- */
+/* ============================================================
+   🚦 Response Interceptor — Global Error Handling
+============================================================ */
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response) {
       const { status } = error.response;
 
+      // 🔒 Auth issues
       if (status === 401 || status === 403) {
-        console.warn("Session expired or unauthorized. Logging out...");
+        console.warn("⚠️ Unauthorized — redirecting to login...");
         localStorage.removeItem("token");
         window.location.href = "/login";
       }
 
+      // 💥 Server errors
       if (status >= 500) {
         console.error(
           "🚨 Server Error:",
@@ -62,7 +65,7 @@ axiosInstance.interceptors.response.use(
         );
       }
     } else if (error.request) {
-      console.error("⚠️ No response from server. Check network or CORS.");
+      console.error("⚠️ No response from backend. Check CORS or network.");
     } else {
       console.error("Axios configuration error:", error.message);
     }
