@@ -2,10 +2,9 @@
  * ============================================================
  *  Acceleott Serverless Backend (Netlify Function Entry)
  * ============================================================
- * ✅ Works for Local + Netlify Production
+ * ✅ Works on Local + Netlify Production
  * ✅ Handles: Auth, Demo, Contact APIs
  * ✅ MongoDB + CORS + CookieParser
- * ✅ Fixed route prefix for Netlify Functions
  * ============================================================
  */
 
@@ -34,13 +33,11 @@ const app = express();
    🔹 Middleware Setup
 ============================================================ */
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
-const isNetlify = process.env.NETLIFY === "true";
 
 app.use(
   cors({
     origin: [
       FRONTEND_URL,
-      "https://fabulous-llama-4c57d9.netlify.app", // your main frontend
       /\.netlify\.app$/, // allow all Netlify preview deploys
     ],
     credentials: true,
@@ -55,15 +52,11 @@ app.use(cookieParser());
    🔹 MongoDB Connection
 ============================================================ */
 const MONGODB_URI = process.env.MONGODB_URI;
-
 if (!MONGODB_URI) {
   console.error("❌ Missing MONGODB_URI in environment variables");
 } else {
   mongoose
-    .connect(MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    })
+    .connect(MONGODB_URI)
     .then(() => console.log("✅ MongoDB connected successfully"))
     .catch((err) =>
       console.error("❌ MongoDB connection failed:", err.message)
@@ -72,58 +65,31 @@ if (!MONGODB_URI) {
 
 /* ============================================================
    🔹 Routes
-   ✅ Base path fix for Netlify Functions
 ============================================================ */
-const basePath = isNetlify ? "/.netlify/functions/server" : "";
 
-// Health check routes
-app.get(`${basePath}/`, (req, res) => {
-  res.status(200).json({ message: "🚀 Acceleott backend is live!" });
-});
-app.get(`${basePath}/test`, (req, res) => {
-  res.status(200).json({ message: "✅ API working on Netlify" });
-});
+// ✅ NO manual prefix needed — Netlify adds '/.netlify/functions/server'
+app.get("/", (req, res) => res.json({ message: "🚀 Acceleott backend is live!" }));
+app.get("/test", (req, res) => res.json({ message: "✅ API test route working!" }));
 
-// ✅ API Routes
-app.use(`${basePath}/api/auth`, authRoutes);
-app.use(`${basePath}/api/demo`, demoRoutes);
-app.use(`${basePath}/api/contact`, contactRoutes);
-
-// ✅ Local Dev Fallback (no basePath)
-if (!isNetlify) {
-  app.use("/api/auth", authRoutes);
-  app.use("/api/demo", demoRoutes);
-  app.use("/api/contact", contactRoutes);
-}
+// ✅ Direct route mounts (no basePath)
+app.use("/api/auth", authRoutes);
+app.use("/api/demo", demoRoutes);
+app.use("/api/contact", contactRoutes);
 
 /* ============================================================
    🔹 Error Handling
 ============================================================ */
 app.use((req, res) => {
-  console.warn(`⚠️ 404: ${req.originalUrl}`);
-  res.status(404).json({ message: `Route ${req.originalUrl} not found` });
+  res.status(404).json({ error: `Route ${req.originalUrl} not found` });
 });
 
 app.use((err, req, res, next) => {
   console.error("🚨 Server Error:", err.stack);
-  res.status(500).json({ message: "Internal Server Error" });
+  res.status(500).json({ error: "Internal Server Error" });
 });
 
 /* ============================================================
    🔹 Export for Netlify (serverless)
 ============================================================ */
 export const handler = serverless(app);
-
-/* ============================================================
-   🔹 Local Dev Mode (optional)
-   Run manually: node netlify/functions/server.js
-============================================================ */
-if (process.env.NODE_ENV === "development") {
-  const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => {
-    console.log(`🚀 Local API running at http://localhost:${PORT}`);
-    console.log(`🌐 Allowed origin: ${FRONTEND_URL}`);
-  });
-}
-
 export default app;

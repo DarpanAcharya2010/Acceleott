@@ -8,20 +8,21 @@
 [build]
   base = "acceleott-mueller"
   command = "npm run build"
-  publish = "dist"
+  publish = "acceleott-mueller/dist"
   functions = "netlify/functions"
 
 # ============================================================
-# 🔀 Redirects — API routing to serverless backend
+# 🔀 Redirects — Frontend ↔ Serverless API
 # ============================================================
 
+# ✅ All API calls like /api/... → /.netlify/functions/server/...
 [[redirects]]
   from = "/api/*"
-  to = "/.netlify/functions/server/api/:splat"
+  to = "/.netlify/functions/server/:splat"
   status = 200
   force = true
 
-# ✅ Optional direct access for manual testing
+# ✅ Optional (if you directly call /auth, /demo, etc.)
 [[redirects]]
   from = "/auth/*"
   to = "/.netlify/functions/server/auth/:splat"
@@ -52,10 +53,19 @@
 
 [functions]
   node_bundler = "esbuild"
-  external_node_modules = ["serverless-http", "mongoose", "express", "cors", "cookie-parser"]
+  external_node_modules = [
+    "serverless-http",
+    "mongoose",
+    "express",
+    "cors",
+    "cookie-parser"
+  ]
+
+# ============================================================
+# 🌍 Environment & Build Settings
+# ============================================================
 
 [build.environment]
   NODE_VERSION = "20"
   NPM_VERSION = "10"
-
   SECRETS_SCAN_OMIT_KEYS = "ADMIN_EMAIL,EMAIL_USER,EMAIL_PASS,JWT_SECRET,MONGODB_URI,NODE_ENV"
