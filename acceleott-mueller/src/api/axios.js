@@ -24,13 +24,8 @@ const fixedBaseURL =
    ⚙️ Axios Instance Setup
    ============================================================ */
 const api = axios.create({
-  baseURL: fixedBaseURL,
-  withCredentials: true, // ✅ allow cookies/JWT sessions
-  headers: {
-    "Content-Type": "application/json",
-    Accept: "application/json",
-  },
-  timeout: 20000, // ✅ Handle slow cold starts
+  baseURL: import.meta.env.VITE_API_BASE_URL || "/.netlify/functions/server/api",
+  headers: { "Content-Type": "application/json" },
 });
 
 /* ============================================================

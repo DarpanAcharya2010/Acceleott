@@ -69,7 +69,7 @@ export default function DemoRequestPage() {
 
     try {
       // ✅ Automatically routed by Netlify proxy in dev
-      const res = await api.post("/demo", formData);
+      const res = await api.post("/.netlify/functions/server/api/demo", formData);
 
       setStatus({
         success: true,
