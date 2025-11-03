@@ -1,10 +1,13 @@
+// src/pages/GetStartedPage.jsx
 import React, { useState, useContext } from "react";
-import api from "@/api/axios"; // ✅ centralized Axios instance
+import { useNavigate } from "react-router-dom";
+import api from "@/api/axios"; // ✅ Centralized Axios instance
 import "./getstarted.css";
 import { AuthContext } from "../context/AuthContext";
 
-const GetStartedPage = () => {
+export default function GetStartedPage() {
   const { setIsAuthenticated } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -18,31 +21,29 @@ const GetStartedPage = () => {
   const [status, setStatus] = useState({ success: null, message: "" });
   const [loading, setLoading] = useState(false);
 
-  // --- Handle input changes ---
+  /* ==========================================================
+     ✅ Handle Input Changes
+  ========================================================== */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // --- Handle form submission ---
+  /* ==========================================================
+     ✅ Handle Registration Submit
+     - Uses api.post("/auth/register")
+     - axios baseURL handles full path dynamically:
+         • Local: http://localhost:8888/.netlify/functions/server/api/auth/register
+         • Netlify Prod: /.netlify/functions/server/api/auth/register
+  ========================================================== */
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (loading) return;
 
     setLoading(true);
-    setStatus({ success: null, message: "Submitting..." });
+    setStatus({ success: null, message: "🚀 Submitting..." });
 
     try {
-      /**
-       * 🧩 Fixed endpoint:
-       *   Old: api.post("/api/auth/register", formData)
-       *   New: api.post("/auth/register", formData)
-       *
-       * Because our axios baseURL already includes `/api`
-       * so the final resolved URL becomes:
-       *   - http://localhost:5000/api/auth/register  ✅ (local)
-       *   - /.netlify/functions/server/api/auth/register ✅ (production)
-       */
       const res = await api.post("/auth/register", formData);
 
       setStatus({
@@ -50,19 +51,17 @@ const GetStartedPage = () => {
         message: res?.data?.message || "✅ Registered successfully!",
       });
 
+      // ✅ Save token & mark as authenticated
       if (res.status === 200 || res.status === 201) {
-        // Save token or fallback key
         const token = res.data?.token || "registered_user";
         localStorage.setItem("token", token);
         setIsAuthenticated(true);
 
-        // Redirect after success
-        setTimeout(() => {
-          window.location.href = "/";
-        }, 1500);
+        // ✅ Smooth redirect
+        setTimeout(() => navigate("/", { replace: true }), 1500);
       }
 
-      // Reset form
+      // ✅ Reset form
       setFormData({
         name: "",
         email: "",
@@ -72,8 +71,7 @@ const GetStartedPage = () => {
         password: "",
       });
     } catch (err) {
-      console.error("Registration Error:", err);
-
+      console.error("❌ Registration Error:", err);
       setStatus({
         success: false,
         message:
@@ -188,6 +186,4 @@ const GetStartedPage = () => {
       </div>
     </div>
   );
-};
-
-export default GetStartedPage;
+}

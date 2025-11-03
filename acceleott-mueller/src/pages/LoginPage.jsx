@@ -1,3 +1,4 @@
+// src/pages/LoginPage.jsx
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "@/api/axios"; // ✅ Centralized Axios instance
@@ -12,48 +13,36 @@ export default function LoginPage() {
   const { setIsAuthenticated } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  // ✅ Handle login form submission
+  /* ==========================================================
+     ✅ Handle Login Submit
+     Works for both local + Netlify
+     axios baseURL = fixed in src/api/axios.js
+  ========================================================== */
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     setMessage("🔐 Logging in...");
 
     try {
-      /**
-       * 🧩 Important Fix:
-       *   - Old:  api.post("/api/auth/login", { email, password });
-       *   - Now:  api.post("/auth/login", { email, password });
-       *
-       * Because axios baseURL already ends with `/api`
-       * → So full path becomes:
-       *   http://localhost:5000/api/auth/login   ✅ (local)
-       *   /.netlify/functions/server/api/auth/login  ✅ (production)
-       */
+      // POST → /auth/login (axios baseURL handles full path)
       const res = await api.post("/auth/login", { email, password });
 
-      // ✅ Save token securely in localStorage
       if (res.data?.token) {
         localStorage.setItem("token", res.data.token);
-        setIsAuthenticated(true); // instantly update context
+        setIsAuthenticated(true);
       }
 
-      // ✅ Success feedback
       setMessage(res.data.message || "✅ Login successful!");
-      console.log("Login response:", res.data);
+      console.log("✅ Login response:", res.data);
 
-      // ✅ Smooth redirect (no reload)
-      setTimeout(() => {
-        navigate("/", { replace: true });
-      }, 1000);
+      // Redirect after success
+      setTimeout(() => navigate("/", { replace: true }), 1000);
     } catch (err) {
-      console.error("Login error:", err);
-
-      // ✅ Safe message
+      console.error("❌ Login error:", err);
       const errMsg =
         err.response?.data?.message ||
         err.message ||
         "❌ Login failed. Please check your credentials.";
-
       setMessage(errMsg);
     } finally {
       setIsSubmitting(false);

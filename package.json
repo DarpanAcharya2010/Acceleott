@@ -2,32 +2,38 @@
   "name": "acceleott",
   "version": "1.0.0",
   "private": true,
-  "description": "Unified deployment for Acceleott frontend (React) and backend (Express + MongoDB).",
+  "description": "Unified deployment for Acceleott frontend (React) and backend (Netlify Serverless Functions + MongoDB).",
   "scripts": {
-    "postinstall": "cd acceleott-mueller && npm install",
-    "dev": "cd acceleott-mueller && npm run dev",
+    "install:frontend": "cd acceleott-mueller && npm install",
+    "dev": "netlify dev",
+    "dev:frontend": "cd acceleott-mueller && npm run dev",
+    "dev:backend": "cd netlify/functions && node server.js",
     "build": "cd acceleott-mueller && npm run build",
     "preview": "cd acceleott-mueller && npm run preview",
-    "start": "node acceleott-backend/server.js",
-    "backend": "nodemon acceleott-backend/server.js"
+    "start": "netlify dev"
   },
   "dependencies": {
     "axios": "^1.11.0",
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.19.2",
+    "nodemailer": "^7.0.10",
     "react-router-dom": "^7.8.2",
     "serverless-http": "^4.0.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^5.1.0",
+    "concurrently": "^8.2.2",
     "gh-pages": "^6.3.0",
     "nodemon": "^3.1.7",
     "vite": "^7.1.12"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   },
   "license": "MIT"
 }

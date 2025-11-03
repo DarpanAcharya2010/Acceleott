@@ -1,38 +1,42 @@
+/**
+ * ============================================================
+ * 🌐 Axios Configuration for Acceleott (Universal Build)
+ * ============================================================
+ * Supports:
+ * - Local development with Netlify Dev (localhost:8888)
+ * - Deployed Netlify functions (/.netlify/functions/server/api)
+ * - Optional custom backend via VITE_BACKEND_URL
+ * ============================================================
+ */
+
 import axios from "axios";
 
 /* ============================================================
-   🌐 Dynamic Base URL — Local Dev + Netlify Production
-   ============================================================
-   🧠 Logic:
-   - Local (when using `netlify dev`): 
-       http://localhost:8888/.netlify/functions/server/api
-   - Production (Netlify deploy): 
-       /.netlify/functions/server/api
-   - Optional override: VITE_BACKEND_URL in .env
-============================================================ */
+   🌍 Dynamic Base URL Detection
+   ============================================================ */
 const fixedBaseURL =
   import.meta.env.VITE_BACKEND_URL?.trim() ||
   (import.meta.env.DEV
-    ? "http://localhost:8888/.netlify/functions/server/api" // ✅ Local Netlify dev
-    : "/.netlify/functions/server/api"); // ✅ Production (Netlify deploy)
+    ? "http://localhost:8888/.netlify/functions/server/api" // ✅ Local (netlify dev)
+    : "/.netlify/functions/server/api"); // ✅ Netlify production
 
 /* ============================================================
-   ⚙️ Axios Instance
-============================================================ */
-const axiosInstance = axios.create({
+   ⚙️ Axios Instance Setup
+   ============================================================ */
+const api = axios.create({
   baseURL: fixedBaseURL,
-  withCredentials: true, // for cookies / auth sessions
+  withCredentials: true, // ✅ allow cookies/JWT sessions
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
   },
-  timeout: 20000, // handles Netlify cold starts
+  timeout: 20000, // ✅ Handle slow cold starts
 });
 
 /* ============================================================
-   🔑 Request Interceptor — Attach JWT if present
-============================================================ */
-axiosInstance.interceptors.request.use(
+   🔑 Request Interceptor — Attach JWT Token if exists
+   ============================================================ */
+api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
     if (token) config.headers.Authorization = `Bearer ${token}`;
@@ -42,22 +46,26 @@ axiosInstance.interceptors.request.use(
 );
 
 /* ============================================================
-   🚦 Response Interceptor — Global Error Handling
-============================================================ */
-axiosInstance.interceptors.response.use(
+   🚦 Response Interceptor — Handle Global Errors
+   ============================================================ */
+api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response) {
       const { status } = error.response;
 
-      // 🔒 Auth issues
+      // 🔒 Auth expired or unauthorized
       if (status === 401 || status === 403) {
         console.warn("⚠️ Unauthorized — redirecting to login...");
         localStorage.removeItem("token");
-        window.location.href = "/login";
+
+        // Optional: only redirect if not already on /login
+        if (window.location.pathname !== "/login") {
+          window.location.href = "/login";
+        }
       }
 
-      // 💥 Server errors
+      // 💥 Server issues
       if (status >= 500) {
         console.error(
           "🚨 Server Error:",
@@ -65,13 +73,13 @@ axiosInstance.interceptors.response.use(
         );
       }
     } else if (error.request) {
-      console.error("⚠️ No response from backend. Check CORS or network.");
+      console.error("⚠️ No response from backend. Check CORS or connectivity.");
     } else {
-      console.error("Axios configuration error:", error.message);
+      console.error("Axios config error:", error.message);
     }
 
     return Promise.reject(error);
   }
 );
 
-export default axiosInstance;
+export default api;

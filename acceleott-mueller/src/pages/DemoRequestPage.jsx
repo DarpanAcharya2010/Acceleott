@@ -1,5 +1,6 @@
+// src/pages/DemoRequestPage.jsx
 import React, { useState } from "react";
-import axios from "axios";
+import api from "@/api/axios"; // ✅ Centralized Axios instance
 import "./demopage.css";
 
 export default function DemoRequestPage() {
@@ -14,17 +15,6 @@ export default function DemoRequestPage() {
   const [loading, setLoading] = useState(false);
 
   /* -----------------------------------------------------
-     🌐 Dynamic API Base URL
-  ----------------------------------------------------- */
-  const API_BASE =
-    import.meta.env.VITE_API_BASE_URL?.trim() ||
-    (import.meta.env.DEV
-      ? "http://localhost:8888/.netlify/functions/server/api" // ✅ Local (netlify dev)
-      : "/.netlify/functions/server/api"); // ✅ Netlify production backend
-
-  const API_URL = `${API_BASE}/demo`; // → final endpoint
-
-  /* -----------------------------------------------------
      ✏️ Handle input changes
   ----------------------------------------------------- */
   const handleChange = (e) => {
@@ -33,7 +23,7 @@ export default function DemoRequestPage() {
   };
 
   /* -----------------------------------------------------
-     ✅ Validate form
+     ✅ Validate form fields
   ----------------------------------------------------- */
   const validateForm = () => {
     const { name, email, contact } = formData;
@@ -72,14 +62,14 @@ export default function DemoRequestPage() {
   ----------------------------------------------------- */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    if (!validateForm() || loading) return;
 
     setLoading(true);
     setStatus({ success: null, message: "Submitting your request..." });
 
     try {
-      // ✅ Use dynamic API_URL (not hardcoded)
-      const res = await axios.post(API_URL, formData);
+      // ✅ Automatically routed by Netlify proxy in dev
+      const res = await api.post("/demo", formData);
 
       setStatus({
         success: true,
@@ -87,7 +77,13 @@ export default function DemoRequestPage() {
           res?.data?.message || "✅ Demo request submitted successfully!",
       });
 
-      setFormData({ name: "", email: "", contact: "", designation: "" });
+      // ✅ Reset form fields
+      setFormData({
+        name: "",
+        email: "",
+        contact: "",
+        designation: "",
+      });
     } catch (err) {
       console.error("Demo request failed:", err);
       setStatus({
@@ -104,7 +100,7 @@ export default function DemoRequestPage() {
   };
 
   /* -----------------------------------------------------
-     💅 Render
+     💅 Render UI
   ----------------------------------------------------- */
   return (
     <div className="demo-page">
@@ -119,6 +115,7 @@ export default function DemoRequestPage() {
               ? "error"
               : "info"
           }`}
+          role="alert"
         >
           {status.message}
         </div>
@@ -160,7 +157,7 @@ export default function DemoRequestPage() {
           onChange={handleChange}
         />
 
-        <button type="submit" disabled={loading}>
+        <button type="submit" disabled={loading} aria-busy={loading}>
           {loading ? "Submitting..." : "Submit Demo Request"}
         </button>
       </form>

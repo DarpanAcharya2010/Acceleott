@@ -79,7 +79,7 @@ export default defineConfig(({ mode }) => {
 
     preview: {
       host: true,
-      port: 4173,
+      port: 5173,
       open: true,
     },
 

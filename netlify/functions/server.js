@@ -1,95 +1,78 @@
-/**
- * ============================================================
- *  Acceleott Serverless Backend (Netlify Function Entry)
- * ============================================================
- * ✅ Works on Local + Netlify Production
- * ✅ Handles: Auth, Demo, Contact APIs
- * ✅ MongoDB + CORS + CookieParser
- * ============================================================
- */
-
+// netlify/functions/server.js
 import express from "express";
 import serverless from "serverless-http";
 import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
-import cookieParser from "cookie-parser";
 
+// ✅ Load environment variables
 dotenv.config();
 
-/* ============================================================
-   🔹 Import Routes
-============================================================ */
-import authRoutes from "../../acceleott-backend/routes/auth.js";
-import demoRoutes from "../../acceleott-backend/routes/demoRoutes.js";
-import contactRoutes from "../../acceleott-backend/routes/contact.js";
-
-/* ============================================================
-   🔹 Initialize Express App
-============================================================ */
+// ✅ Initialize Express app
 const app = express();
-
-/* ============================================================
-   🔹 Middleware Setup
-============================================================ */
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
-
 app.use(
   cors({
     origin: [
-      FRONTEND_URL,
-      /\.netlify\.app$/, // allow all Netlify preview deploys
+      "http://localhost:5173",
+      "http://localhost:8888",
+      "https://fabulous-llama-4c57d9.netlify.app",
+      "https://fabulous-llama-4c57d9.netlify.app/.netlify/functions/server/api/demo",
     ],
-    credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
   })
 );
 
 app.use(express.json());
-app.use(cookieParser());
 
-/* ============================================================
-   🔹 MongoDB Connection
-============================================================ */
-const MONGODB_URI = process.env.MONGODB_URI;
-if (!MONGODB_URI) {
-  console.error("❌ Missing MONGODB_URI in environment variables");
-} else {
-  mongoose
-    .connect(MONGODB_URI)
-    .then(() => console.log("✅ MongoDB connected successfully"))
-    .catch((err) =>
-      console.error("❌ MongoDB connection failed:", err.message)
-    );
-}
+// ✅ MongoDB Connection (optimized for serverless cold starts)
+let isConnected = false;
+const connectDB = async () => {
+  if (isConnected) return;
+  try {
+    const conn = await mongoose.connect(process.env.MONGODB_URI, {
+      dbName: process.env.DB_NAME || "acceleott",
+    });
+    isConnected = true;
+    console.log("✅ MongoDB Connected:", conn.connection.host);
+  } catch (err) {
+    console.error("❌ MongoDB connection error:", err.message);
+  }
+};
+connectDB();
 
-/* ============================================================
-   🔹 Routes
-============================================================ */
+/* ==========================================================
+   ✅ Import and Mount Routes
+   (Each file inside netlify/functions/routes/)
+   ========================================================== */
+import demoRoutes from "./routes/demoRoutes.js";
+import authRoutes from "./routes/auth.js";
+import contactRoutes from "./routes/contact.js";
 
-// ✅ NO manual prefix needed — Netlify adds '/.netlify/functions/server'
-app.get("/", (req, res) => res.json({ message: "🚀 Acceleott backend is live!" }));
-app.get("/test", (req, res) => res.json({ message: "✅ API test route working!" }));
-
-// ✅ Direct route mounts (no basePath)
-app.use("/api/auth", authRoutes);
+// ✅ Mount all routes under `/api`
 app.use("/api/demo", demoRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/contact", contactRoutes);
 
-/* ============================================================
-   🔹 Error Handling
-============================================================ */
+/* ==========================================================
+   ✅ Root Route for Testing
+   ========================================================== */
+app.get("/", (req, res) => {
+  res.status(200).json({
+    status: "success",
+    message: "✅ Netlify serverless Express API running successfully!",
+  });
+});
+
+/* ==========================================================
+   🚫 Catch-All Route for Undefined Paths
+   ========================================================== */
 app.use((req, res) => {
-  res.status(404).json({ error: `Route ${req.originalUrl} not found` });
+  res.status(404).json({ message: `Route not found: ${req.originalUrl}` });
 });
 
-app.use((err, req, res, next) => {
-  console.error("🚨 Server Error:", err.stack);
-  res.status(500).json({ error: "Internal Server Error" });
-});
-
-/* ============================================================
-   🔹 Export for Netlify (serverless)
-============================================================ */
+/* ==========================================================
+   ✅ Export for Netlify Handler
+   ========================================================== */
 export const handler = serverless(app);
-export default app;
