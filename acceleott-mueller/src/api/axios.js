@@ -2,10 +2,10 @@
  * ============================================================
  * 🌐 Axios Configuration for Acceleott (Universal Build)
  * ============================================================
- * Supports:
- * - Local development with Netlify Dev (localhost:8888)
- * - Deployed Netlify functions (/.netlify/functions/server/api)
- * - Optional custom backend via VITE_BACKEND_URL
+ * Works with:
+ * - 🧩 Local dev (Netlify Dev → http://localhost:8888)
+ * - ☁️ Netlify Production Functions (/.netlify/functions/server/api)
+ * - ⚙️ Optional: Custom backend via VITE_BACKEND_URL
  * ============================================================
  */
 
@@ -14,22 +14,21 @@ import axios from "axios";
 /* ============================================================
    🌍 Dynamic Base URL Detection
    ============================================================ */
-const fixedBaseURL =
+const BASE_URL =
   import.meta.env.VITE_BACKEND_URL?.trim() ||
   (import.meta.env.DEV
-    ? "http://localhost:8888/.netlify/functions/server/api" // ✅ Local (netlify dev)
-    : "/.netlify/functions/server/api"); // ✅ Netlify production
+    ? "http://localhost:8888/.netlify/functions/server/api" // ✅ Local
+    : "/.netlify/functions/server/api"); // ✅ Production (Netlify)
 
 /* ============================================================
    ⚙️ Axios Instance Setup
    ============================================================ */
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "/.netlify/functions/server/api",
-  headers: { "Content-Type": "application/json" },
+  baseURL: import.meta.env.VITE_BACKEND_URL || "/.netlify/functions/server",
 });
 
 /* ============================================================
-   🔑 Request Interceptor — Attach JWT Token if exists
+   🔑 Request Interceptor — Attach JWT Token if available
    ============================================================ */
 api.interceptors.request.use(
   (config) => {
@@ -41,31 +40,26 @@ api.interceptors.request.use(
 );
 
 /* ============================================================
-   🚦 Response Interceptor — Handle Global Errors
+   🚦 Response Interceptor — Handle Auth + Server Errors
    ============================================================ */
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response) {
-      const { status } = error.response;
+      const { status, data } = error.response;
 
-      // 🔒 Auth expired or unauthorized
+      // 🔒 Token expired or invalid
       if (status === 401 || status === 403) {
         console.warn("⚠️ Unauthorized — redirecting to login...");
         localStorage.removeItem("token");
-
-        // Optional: only redirect if not already on /login
         if (window.location.pathname !== "/login") {
           window.location.href = "/login";
         }
       }
 
-      // 💥 Server issues
+      // 💥 Server-side error
       if (status >= 500) {
-        console.error(
-          "🚨 Server Error:",
-          error.response.data?.message || "Unexpected backend issue."
-        );
+        console.error("🚨 Server Error:", data?.message || "Unexpected backend issue.");
       }
     } else if (error.request) {
       console.error("⚠️ No response from backend. Check CORS or connectivity.");
@@ -76,5 +70,30 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+/* ============================================================
+   🧩 Auth Routes
+   ============================================================ */
+export const authAPI = {
+  register: (payload) => api.post("/auth/register", payload),
+  login: (payload) => api.post("/auth/login", payload),
+  logout: () => api.post("/auth/logout"),
+  me: () => api.get("/auth/me"),
+};
+
+/* ============================================================
+   📩 Demo Routes
+   ============================================================ */
+export const demoAPI = {
+  requestDemo: (payload) => api.post("/demo", payload),
+  list: () => api.get("/demo"),
+};
+
+/* ============================================================
+   🚀 Get Started (Contact) Routes
+   ============================================================ */
+export const getStartedAPI = {
+  submit: (payload) => api.post("/getstarted", payload),
+};
 
 export default api;

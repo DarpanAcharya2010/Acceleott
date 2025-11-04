@@ -1,6 +1,5 @@
-// src/pages/DemoRequestPage.jsx
 import React, { useState } from "react";
-import api from "@/api/axios"; // ✅ Centralized Axios instance
+import { demoAPI } from "@/api/axios";
 import "./demopage.css";
 
 export default function DemoRequestPage() {
@@ -68,8 +67,8 @@ export default function DemoRequestPage() {
     setStatus({ success: null, message: "Submitting your request..." });
 
     try {
-      // ✅ Automatically routed by Netlify proxy in dev
-      const res = await api.post("/.netlify/functions/server/api/demo", formData);
+      // ✅ Correct endpoint — baseURL already includes /api
+      const res = await demoAPI.requestDemo(formData);
 
       setStatus({
         success: true,
@@ -77,7 +76,6 @@ export default function DemoRequestPage() {
           res?.data?.message || "✅ Demo request submitted successfully!",
       });
 
-      // ✅ Reset form fields
       setFormData({
         name: "",
         email: "",

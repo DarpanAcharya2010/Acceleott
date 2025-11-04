@@ -6,7 +6,7 @@
 [build]
   base = ""           # Vite frontend folder
   publish = "acceleott-mueller/dist"   # Build output folder
-  command = "npm run build"
+  command = "cd acceleott-mueller && npm run build"
   functions = "netlify/functions"      # ✅ Root-level functions folder
 
 [dev]
@@ -24,6 +24,10 @@
   to = "/index.html"
   status = 200
 
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/server"
+  status = 200
 # ============================================================
 # ⚙️ Function Build Settings
 # ============================================================
@@ -39,4 +43,4 @@
 [build.environment]
   NODE_VERSION = "20"
   NPM_VERSION = "10"
-  SECRETS_SCAN_OMIT_KEYS = "ADMIN_EMAIL,EMAIL_USER,EMAIL_PASS,JWT_SECRET,MONGODB_URI,NODE_ENV"
+  SECRETS_SCAN_OMIT_KEYS = "VITE_API_BASE_URL,ADMIN_EMAIL,EMAIL_USER,EMAIL_PASS,JWT_SECRET,MONGODB_URI,NODE_ENV"

@@ -16,7 +16,7 @@ app.use(
       "http://localhost:5173",
       "http://localhost:8888",
       "https://fabulous-llama-4c57d9.netlify.app",
-      "https://fabulous-llama-4c57d9.netlify.app/.netlify/functions/server/api/demo",
+      "https://www.acceleott.com/",
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -44,16 +44,15 @@ connectDB();
 
 /* ==========================================================
    ✅ Import and Mount Routes
-   (Each file inside netlify/functions/routes/)
    ========================================================== */
 import demoRoutes from "./routes/demoRoutes.js";
 import authRoutes from "./routes/auth.js";
 import contactRoutes from "./routes/contact.js";
 
-// ✅ Mount all routes under `/api`
-app.use("/api/demo", demoRoutes);
-app.use("/api/auth", authRoutes);
-app.use("/api/contact", contactRoutes);
+// ✅ All routes mounted under `/api`
+app.use("/demo", demoRoutes);
+app.use("/auth", authRoutes);
+app.use("/contact", contactRoutes);
 
 /* ==========================================================
    ✅ Root Route for Testing
@@ -66,7 +65,7 @@ app.get("/", (req, res) => {
 });
 
 /* ==========================================================
-   🚫 Catch-All Route for Undefined Paths
+   🚫 Catch-All Route
    ========================================================== */
 app.use((req, res) => {
   res.status(404).json({ message: `Route not found: ${req.originalUrl}` });

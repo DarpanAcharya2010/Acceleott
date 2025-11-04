@@ -1,4 +1,3 @@
-// src/pages/GetStartedPage.jsx
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "@/api/axios"; // ✅ Centralized Axios instance
@@ -9,7 +8,7 @@ export default function GetStartedPage() {
   const { setIsAuthenticated } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
+  const [form, setForm] = useState({
     name: "",
     email: "",
     phone: "",
@@ -18,51 +17,53 @@ export default function GetStartedPage() {
     password: "",
   });
 
-  const [status, setStatus] = useState({ success: null, message: "" });
-  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState({ loading: false, message: "", success: null });
 
-  /* ==========================================================
-     ✅ Handle Input Changes
-  ========================================================== */
+  /* -----------------------------------------------------
+     ✏️ Handle Input Changes
+  ----------------------------------------------------- */
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  /* ==========================================================
-     ✅ Handle Registration Submit
-     - Uses api.post("/auth/register")
-     - axios baseURL handles full path dynamically:
-         • Local: http://localhost:8888/.netlify/functions/server/api/auth/register
-         • Netlify Prod: /.netlify/functions/server/api/auth/register
-  ========================================================== */
+  /* -----------------------------------------------------
+     🚀 Handle Registration Submit
+     Automatically works with both local + Netlify env
+  ----------------------------------------------------- */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (loading) return;
+    if (status.loading) return;
 
-    setLoading(true);
-    setStatus({ success: null, message: "🚀 Submitting..." });
+    setStatus({ loading: true, message: "🚀 Registering your account...", success: null });
 
     try {
-      const res = await api.post("/auth/register", formData);
+      // ✅ POST to /auth/register (axios baseURL handles the rest)
+      const res = await api.post("/auth/register", form);
 
-      setStatus({
-        success: true,
-        message: res?.data?.message || "✅ Registered successfully!",
-      });
-
-      // ✅ Save token & mark as authenticated
       if (res.status === 200 || res.status === 201) {
         const token = res.data?.token || "registered_user";
         localStorage.setItem("token", token);
         setIsAuthenticated(true);
 
-        // ✅ Smooth redirect
-        setTimeout(() => navigate("/", { replace: true }), 1500);
+        setStatus({
+          loading: false,
+          message: res.data?.message || "✅ Registration successful!",
+          success: true,
+        });
+
+        // Redirect after success
+        setTimeout(() => navigate("/", { replace: true }), 1200);
+      } else {
+        setStatus({
+          loading: false,
+          message: res.data?.message || "⚠️ Unexpected response from server.",
+          success: false,
+        });
       }
 
       // ✅ Reset form
-      setFormData({
+      setForm({
         name: "",
         email: "",
         phone: "",
@@ -71,18 +72,19 @@ export default function GetStartedPage() {
         password: "",
       });
     } catch (err) {
-      console.error("❌ Registration Error:", err);
-      setStatus({
-        success: false,
-        message:
-          err?.response?.data?.message ||
-          "❌ Registration failed. Please try again.",
-      });
-    } finally {
-      setLoading(false);
+      console.error("❌ Registration error:", err);
+      const errMsg =
+        err.response?.data?.message ||
+        (err.code === "ECONNABORTED"
+          ? "⏱️ Request timed out. Please try again."
+          : "❌ Registration failed. Please try again later.");
+      setStatus({ loading: false, message: errMsg, success: false });
     }
   };
 
+  /* -----------------------------------------------------
+     💅 Render UI
+  ----------------------------------------------------- */
   return (
     <div className="page">
       <div className="container">
@@ -93,8 +95,7 @@ export default function GetStartedPage() {
           </div>
           <h2>Join Us</h2>
           <p>
-            Be a part of our growing network — register to get started and stay
-            connected.
+            Be part of our growing network — register to get started and stay connected.
           </p>
           <a href="#about" className="btn" aria-label="Learn more about us">
             About Us
@@ -122,64 +123,70 @@ export default function GetStartedPage() {
           )}
 
           {/* Registration Form */}
-          <form onSubmit={handleSubmit} autoComplete="off">
+          <form onSubmit={handleSubmit} autoComplete="off" noValidate>
             <input
               type="text"
               name="name"
               placeholder="Full Name"
-              value={formData.name}
+              value={form.name}
               onChange={handleChange}
               required
+              disabled={status.loading}
             />
             <input
               type="email"
               name="email"
               placeholder="Email Address"
-              value={formData.email}
+              value={form.email}
               onChange={handleChange}
               required
+              disabled={status.loading}
             />
             <input
               type="tel"
               name="phone"
               placeholder="Contact Number"
-              value={formData.phone}
+              value={form.phone}
               onChange={handleChange}
               required
+              disabled={status.loading}
             />
             <input
               type="text"
               name="source"
               placeholder="Where did you hear about us?"
-              value={formData.source}
+              value={form.source}
               onChange={handleChange}
               required
+              disabled={status.loading}
             />
             <input
               type="text"
               name="occupation"
               placeholder="Occupation"
-              value={formData.occupation}
+              value={form.occupation}
               onChange={handleChange}
               required
+              disabled={status.loading}
             />
             <input
               type="password"
               name="password"
               placeholder="Password"
-              value={formData.password}
+              value={form.password}
               onChange={handleChange}
               required
               minLength={6}
+              disabled={status.loading}
             />
 
             <button
               type="submit"
               className="register-btn"
-              disabled={loading}
-              aria-busy={loading}
+              disabled={status.loading}
+              aria-busy={status.loading}
             >
-              {loading ? "Processing..." : "Register"}
+              {status.loading ? "Processing..." : "Register"}
             </button>
           </form>
         </div>
